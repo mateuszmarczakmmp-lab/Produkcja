@@ -103,24 +103,24 @@
         <input type="hidden" id="editIdx" value="-1">
         <label>Nazwa modelu</label><input type="text" id="pName">
         <div class="row">
-            <div style="flex:1"><label>Deska/m³</label><input type="number" id="pWood" value="1000"></div>
-            <div style="flex:1"><label>Klocek/m³</label><input type="number" id="pBlocks" value="1200"></div>
+            <div style="flex:1"><label>Deska/m³</label><input type="text" inputmode="tel" id="pWood" value="1000"></div>
+            <div style="flex:1"><label>Klocek/m³</label><input type="text" inputmode="tel" id="pBlocks" value="1200"></div>
         </div>
         <label>Deska 1 (Dł x Sz x Gr)</label>
         <div class="row">
-            <input type="number" id="d1L" placeholder="Dł">
-            <input type="number" id="d1S" placeholder="Sz">
-            <input type="number" id="d1G" placeholder="Gr">
+            <input type="text" inputmode="tel" id="d1L" placeholder="Dł">
+            <input type="text" inputmode="tel" id="d1S" placeholder="Sz">
+            <input type="text" inputmode="tel" id="d1G" placeholder="Gr">
         </div>
-        <label>Ilość Desek 1</label><input type="number" id="d1Qty">
+        <label>Ilość Desek 1</label><input type="text" inputmode="tel" id="d1Qty">
         <label>Deska 2 (Dł x Sz x Gr)</label>
         <div class="row">
-            <input type="number" id="d2L" placeholder="Dł">
-            <input type="number" id="d2S" placeholder="Sz">
-            <input type="number" id="d2G" placeholder="Gr">
+            <input type="text" inputmode="tel" id="d2L" placeholder="Dł">
+            <input type="text" inputmode="tel" id="d2S" placeholder="Sz">
+            <input type="text" inputmode="tel" id="d2G" placeholder="Gr">
         </div>
-        <label>Ilość Desek 2</label><input type="number" id="d2Qty" value="0">
-        <label>Klocki (szt)</label><input type="number" id="bQty">
+        <label>Ilość Desek 2</label><input type="text" inputmode="tel" id="d2Qty" value="0">
+        <label>Klocki (szt)</label><input type="text" inputmode="tel" id="bQty">
         <div id="liveCostDisplay" class="prod-cost-display">0.00 PLN</div>
         <button id="saveBtn" class="btn btn-green" onclick="saveModel()">ZAPISZ MODEL</button>
         <button id="cancelEditBtn" class="btn" style="display:none; background:#3a3a3c;" onclick="cancelEdit()">ANULUJ</button>
@@ -134,8 +134,8 @@
         <label>Model</label><select id="palletSelect" onchange="updateProfitHint()"></select>
         <label>Klient</label><input type="text" id="clientName">
         <div class="row">
-            <div style="flex:1"><label>Ilość</label><input type="number" id="saleQty"></div>
-            <div style="flex:1"><label>Cena sprzedaży</label><input type="number" id="salePrice" oninput="updateProfitHint()"></div>
+            <div style="flex:1"><label>Ilość</label><input type="text" inputmode="tel" id="saleQty"></div>
+            <div style="flex:1"><label>Cena sprzedaży</label><input type="text" inputmode="tel" id="salePrice" oninput="updateProfitHint()"></div>
         </div>
         <div id="profitHint" style="margin-top:15px; text-align:center;"></div>
         <button class="btn btn-blue" onclick="addSale()">DODAJ SPRZEDAŻ</button>
@@ -208,9 +208,9 @@
     }
 
     function calculateLiveCost() {
-        const pw = parseFloat(document.getElementById('pWood').value) || 0;
-        const pb = parseFloat(document.getElementById('pBlocks').value) || 0;
-        const getV = (l, s, g, q) => (parseFloat(l)*parseFloat(s)*parseFloat(g)/1000000) * (parseInt(q)||0);
+        const pw = parseFloat(document.getElementById('pWood').value.replace(',', '.')) || 0;
+        const pb = parseFloat(document.getElementById('pBlocks').value.replace(',', '.')) || 0;
+        const getV = (l, s, g, q) => (parseFloat(String(l).replace(',', '.'))*parseFloat(String(s).replace(',', '.'))*parseFloat(String(g).replace(',', '.'))/1000000) * (parseInt(q)||0);
         const v = getV(document.getElementById('d1L').value, document.getElementById('d1S').value, document.getElementById('d1G').value, document.getElementById('d1Qty').value) + getV(document.getElementById('d2L').value, document.getElementById('d2S').value, document.getElementById('d2G').value, document.getElementById('d2Qty').value);
         const vb = (7.5 * 7.5 * 7.8 / 1000000) * (parseInt(document.getElementById('bQty').value) || 0);
         const cost = (v * pw) + (vb * pb);
@@ -260,7 +260,8 @@
 
     function updateProfitHint() {
         const idx = document.getElementById('palletSelect').value;
-        const sPrice = parseFloat(document.getElementById('salePrice').value) || 0;
+        const sPriceStr = document.getElementById('salePrice').value.replace(',', '.');
+        const sPrice = parseFloat(sPriceStr) || 0;
         if(idx !== "" && sPrice > 0 && db.models[idx]) {
             const profit = sPrice - db.models[idx].cost;
             document.getElementById('profitHint').innerHTML = `Zysk: <span style="color:${profit>=0?'var(--success)':'var(--danger)'}">${profit.toFixed(2)} PLN/szt.</span>`;
@@ -270,7 +271,7 @@
     function addSale() {
         const idx = document.getElementById('palletSelect').value;
         const qty = parseInt(document.getElementById('saleQty').value);
-        const sPrice = parseFloat(document.getElementById('salePrice').value);
+        const sPrice = parseFloat(document.getElementById('salePrice').value.replace(',', '.'));
         if(!qty || !sPrice || idx === "") return alert("Błąd!");
         const m = db.models[idx]; const d = new Date();
         db.sales.push({ 
