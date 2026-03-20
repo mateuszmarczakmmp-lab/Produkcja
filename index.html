@@ -74,7 +74,8 @@
         }
 
         .year-box { background: #000; padding: 20px; border-radius: 12px; margin-bottom: 15px; text-align: center; border: 1px solid var(--primary); }
-        .year-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; font-size: 11px; color: var(--text-dim); border-top: 1px solid var(--border); padding-top: 10px; }
+        /* Poprawiona tabela podsumowania roku */
+        .year-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 10px; color: var(--text-dim); border-top: 1px solid var(--border); padding-top: 10px; }
 
         .month-acc { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
         .month-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
@@ -103,24 +104,24 @@
         <input type="hidden" id="editIdx" value="-1">
         <label>Nazwa modelu</label><input type="text" id="pName">
         <div class="row">
-            <div style="flex:1"><label>Deska/m³</label><input type="text" inputmode="tel" id="pWood" value="1000"></div>
-            <div style="flex:1"><label>Klocek/m³</label><input type="text" inputmode="tel" id="pBlocks" value="1200"></div>
+            <div style="flex:1"><label>Deska/m³</label><input type="text" inputmode="decimal" id="pWood" value="1000"></div>
+            <div style="flex:1"><label>Klocek/m³</label><input type="text" inputmode="decimal" id="pBlocks" value="1200"></div>
         </div>
         <label>Deska 1 (Dł x Sz x Gr)</label>
         <div class="row">
-            <input type="text" inputmode="tel" id="d1L" placeholder="Dł">
-            <input type="text" inputmode="tel" id="d1S" placeholder="Sz">
-            <input type="text" inputmode="tel" id="d1G" placeholder="Gr">
+            <input type="text" inputmode="decimal" id="d1L" placeholder="Dł">
+            <input type="text" inputmode="decimal" id="d1S" placeholder="Sz">
+            <input type="text" inputmode="decimal" id="d1G" placeholder="Gr">
         </div>
-        <label>Ilość Desek 1</label><input type="text" inputmode="tel" id="d1Qty">
+        <label>Ilość Desek 1</label><input type="text" inputmode="decimal" id="d1Qty">
         <label>Deska 2 (Dł x Sz x Gr)</label>
         <div class="row">
-            <input type="text" inputmode="tel" id="d2L" placeholder="Dł">
-            <input type="text" inputmode="tel" id="d2S" placeholder="Sz">
-            <input type="text" inputmode="tel" id="d2G" placeholder="Gr">
+            <input type="text" inputmode="decimal" id="d2L" placeholder="Dł">
+            <input type="text" inputmode="decimal" id="d2S" placeholder="Sz">
+            <input type="text" inputmode="decimal" id="d2G" placeholder="Gr">
         </div>
-        <label>Ilość Desek 2</label><input type="text" inputmode="tel" id="d2Qty" value="0">
-        <label>Klocki (szt)</label><input type="text" inputmode="tel" id="bQty">
+        <label>Ilość Desek 2</label><input type="text" inputmode="decimal" id="d2Qty" value="0">
+        <label>Klocki (szt)</label><input type="text" inputmode="decimal" id="bQty">
         <div id="liveCostDisplay" class="prod-cost-display">0.00 PLN</div>
         <button id="saveBtn" class="btn btn-green" onclick="saveModel()">ZAPISZ MODEL</button>
         <button id="cancelEditBtn" class="btn" style="display:none; background:#3a3a3c;" onclick="cancelEdit()">ANULUJ</button>
@@ -134,8 +135,8 @@
         <label>Model</label><select id="palletSelect" onchange="updateProfitHint()"></select>
         <label>Klient</label><input type="text" id="clientName">
         <div class="row">
-            <div style="flex:1"><label>Ilość</label><input type="text" inputmode="tel" id="saleQty"></div>
-            <div style="flex:1"><label>Cena sprzedaży</label><input type="text" inputmode="tel" id="salePrice" oninput="updateProfitHint()"></div>
+            <div style="flex:1"><label>Ilość</label><input type="text" inputmode="decimal" id="saleQty"></div>
+            <div style="flex:1"><label>Cena sprzedaży</label><input type="text" inputmode="decimal" id="salePrice" oninput="updateProfitHint()"></div>
         </div>
         <div id="profitHint" style="margin-top:15px; text-align:center;"></div>
         <button class="btn btn-blue" onclick="addSale()">DODAJ SPRZEDAŻ</button>
@@ -161,10 +162,16 @@
     async function checkAuth() { 
         const savedToken = localStorage.getItem('g_token'); 
         if (savedToken) { 
-            gapi.client.setToken(JSON.parse(savedToken)); 
+            const token = JSON.parse(savedToken);
+            gapi.client.setToken(token); 
             if (gapiInited) {
                 const connected = await initializeFile(); 
-                if (connected) document.getElementById('auth_btn').style.display = 'none';
+                if (connected) {
+                    document.getElementById('auth_btn').style.display = 'none';
+                } else {
+                    // Jeśli stary token nie działa, pokazujemy przycisk
+                    document.getElementById('auth_btn').style.display = 'block';
+                }
             }
         } 
     }
@@ -271,14 +278,16 @@
     function addSale() {
         const idx = document.getElementById('palletSelect').value;
         const qty = parseInt(document.getElementById('saleQty').value);
-        const sPrice = parseFloat(document.getElementById('salePrice').value.replace(',', '.'));
+        const sPriceStr = document.getElementById('salePrice').value.replace(',', '.');
+        const sPrice = parseFloat(sPriceStr);
         if(!qty || !sPrice || idx === "") return alert("Błąd!");
         const m = db.models[idx]; const d = new Date();
         db.sales.push({ 
             id: Date.now().toString(), date: d.toLocaleDateString(), year: d.getFullYear(), 
             month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(), 
             name: m.name, client: document.getElementById('clientName').value || "Brak", qty: qty, 
-            unitCostAtSale: m.cost, unitProfit: (sPrice - m.cost), prof: (sPrice - m.cost) * qty, cost: m.cost * qty 
+            unitCostAtSale: m.cost, unitProfit: (sPrice - m.cost), prof: (sPrice - m.cost) * qty, cost: m.cost * qty,
+            revenue: sPrice * qty 
         });
         saveToCloud().then(ok => { if(ok) { document.getElementById('saleQty').value = ""; renderStats(); alert("Dodano!"); } });
     }
@@ -289,16 +298,17 @@
         monthsContainer.innerHTML = ""; yearContainer.innerHTML = "";
         if(!db.sales || db.sales.length === 0) return;
         const currentYear = new Date().getFullYear();
-        let yearSums = { p: 0, c: 0, q: 0 }; let monthlyData = {};
+        let yearSums = { p: 0, c: 0, q: 0, r: 0 }; let monthlyData = {};
 
         db.sales.forEach(s => {
-            if(s.year == currentYear) { yearSums.p += s.prof; yearSums.c += s.cost; yearSums.q += s.qty; }
+            const sRev = s.revenue || (s.cost + s.prof);
+            if(s.year == currentYear) { yearSums.p += s.prof; yearSums.c += s.cost; yearSums.q += s.qty; yearSums.r += sRev; }
             if(!monthlyData[s.month]) monthlyData[s.month] = { p: 0, c: 0, q: 0, items: [] };
             monthlyData[s.month].p += s.prof; monthlyData[s.month].c += s.cost; monthlyData[s.month].q += s.qty;
             monthlyData[s.month].items.push(s);
         });
 
-        yearContainer.innerHTML = `<div class="year-box"><small>ZYSK ${currentYear}</small><div style="font-size:28px; font-weight:800; color:var(--success); margin: 5px 0;">+${yearSums.p.toFixed(2)} PLN</div><div class="year-grid"><div>KOSZTY<br><b>${yearSums.c.toFixed(0)}</b></div><div>SZTUK<br><b>${yearSums.q}</b></div></div></div>`;
+        yearContainer.innerHTML = `<div class="year-box"><small>ZYSK ${currentYear}</small><div style="font-size:28px; font-weight:800; color:var(--success); margin: 5px 0;">+${yearSums.p.toFixed(2)} PLN</div><div class="year-grid"><div>PRZYCHÓD<br><b style="color:white">${yearSums.r.toFixed(0)}</b></div><div>KOSZTY<br><b style="color:var(--danger)">${yearSums.c.toFixed(0)}</b></div><div>SZTUK<br><b style="color:var(--primary)">${yearSums.q}</b></div></div></div>`;
 
         Object.keys(monthlyData).sort().reverse().forEach(m => {
             const data = monthlyData[m];
@@ -306,12 +316,7 @@
             div.innerHTML = `
                 <div class="month-header" onclick="toggleMonth('${m}')"><div><b>${m}</b></div><div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div></div>
                 <div id="content-${m.replace('/','-')}" class="month-content">
-                    <table>${data.items.slice().reverse().map(item => `
-                        <tr>
-                            <td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td>
-                            <td style="text-align:center">x${item.qty}</td>
-                            <td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td>
-                        </tr>`).join('')}</table>
+                    <table>${data.items.slice().reverse().map(item => `<tr><td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td><td style="text-align:center">x${item.qty}</td><td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td></tr>`).join('')}</table>
                 </div>`;
             monthsContainer.appendChild(div);
         });
