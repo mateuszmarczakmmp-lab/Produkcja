@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Produkcja</title>
-
-    <meta name="apple-mobile-web-app-title" content="Produkcja">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/12721/12721102.png?v=4">
@@ -43,6 +40,7 @@
         .mode-switch { display: flex; gap: 5px; margin-top: 5px; background: #000; padding: 4px; border-radius: 8px; }
         .mode-opt { flex:1; text-align:center; padding: 8px; font-size: 10px; font-weight: 700; border-radius: 6px; cursor:pointer; color: #8e8e93; }
         .mode-opt.active { background: #3a3a3c; color: white; }
+        .salary-row { background: rgba(255, 149, 0, 0.05); }
     </style>
 </head>
 <body>
@@ -82,7 +80,6 @@
             <div id="optProd" class="mode-opt active" onclick="setSaleMode('prod')">WŁASNA PRODUKCJA</div>
             <div id="optBuy" class="mode-opt" onclick="setSaleMode('buy')">KUPNO-SPRZEDAŻ</div>
         </div>
-
         <div id="prodFields">
             <label>Model</label><select id="palletSelect" onchange="updateProfitHint()"></select>
         </div>
@@ -90,7 +87,6 @@
             <label>Nazwa towaru</label><input type="text" id="buyName" placeholder="Np. Paleta używana">
             <label>Cena zakupu (szt)</label><input type="text" inputmode="decimal" id="buyCost" oninput="updateProfitHint()">
         </div>
-
         <label>Klient</label><input type="text" id="clientName">
         <div class="row">
             <div style="flex:1"><label>Ilość</label><input type="text" inputmode="decimal" id="saleQty"></div>
@@ -219,7 +215,6 @@
         const qty = parseInt(document.getElementById('saleQty').value);
         const sPrice = parseFloat(document.getElementById('salePrice').value.replace(',', '.'));
         if(!qty || !sPrice) return alert("Błąd!");
-        
         let name, unitCost;
         if(saleMode === 'prod') {
             const idx = document.getElementById('palletSelect').value;
@@ -228,7 +223,6 @@
             name = "[Kupno] " + document.getElementById('buyName').value;
             unitCost = parseFloat(document.getElementById('buyCost').value.replace(',', '.')) || 0;
         }
-
         const d = new Date();
         db.sales.push({ id: Date.now().toString(), date: d.toLocaleDateString(), year: d.getFullYear(), month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(), name: name, client: document.getElementById('clientName').value || "Brak", qty: qty, prof: (sPrice - unitCost) * qty, cost: unitCost * qty, rev: sPrice * qty });
         saveToCloud().then(ok => { if(ok) { document.getElementById('saleQty').value = ""; renderStats(); alert("Dodano!"); } });
@@ -237,24 +231,21 @@
     function addWeeklySalary() {
         const dateInput = document.getElementById('salaryDate').value;
         const amount = parseFloat(document.getElementById('salaryAmount').value.replace(',', '.'));
-        if(!dateInput || !amount) return alert("Wpisz datę (piątek) i kwotę!");
-        
+        if(!dateInput || !amount) return alert("Wpisz datę i kwotę!");
         const fri = new Date(dateInput);
         const dayVal = amount / 5;
-        // Rozdzielamy na 5 dni roboczych (Pn-Pt)
         for(let i=0; i<5; i++) {
-            let d = new Date(fri);
-            d.setDate(fri.getDate() - (4 - i)); // i=0 to Pon, i=4 to Piątek
+            let d = new Date(fri); d.setDate(fri.getDate() - (4 - i));
             db.sales.push({
                 id: "sal-" + Date.now() + i,
                 date: d.toLocaleDateString(),
                 year: d.getFullYear(),
                 month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(),
-                name: "TYGODNIÓWKA", client: "Praca", qty: 1, 
+                name: "TYGODNIÓWKA", client: "Praca", qty: 0, // 0 sztuk żeby nie psuć statystyk
                 prof: dayVal, cost: 0, rev: dayVal
             });
         }
-        saveToCloud().then(() => { renderStats(); alert("Rozdzielono na 5 dni!"); });
+        saveToCloud().then(() => { renderStats(); alert("Tygodniówka rozliczona!"); });
     }
 
     function renderStats() {
@@ -267,9 +258,10 @@
 
         db.sales.forEach(s => {
             const rev = s.rev || (s.prof + s.cost);
-            if(s.year == curYear) { yS.p += s.prof; yS.c += s.cost; yS.q += s.qty; yS.r += rev; }
+            const qty = parseInt(s.qty) || 0;
+            if(s.year == curYear) { yS.p += s.prof; yS.c += s.cost; yS.q += qty; yS.r += rev; }
             if(!mD[s.month]) mD[s.month] = { p: 0, c: 0, q: 0, items: [] };
-            mD[s.month].p += s.prof; mD[s.month].c += s.cost; mD[s.month].q += s.qty; mD[s.month].items.push(s);
+            mD[s.month].p += s.prof; mD[s.month].c += s.cost; mD[s.month].q += qty; mD[s.month].items.push(s);
         });
 
         yearContainer.innerHTML = `<div class="year-box"><small>ZYSK ${curYear}</small><div style="font-size:28px; font-weight:800; color:var(--success); margin: 5px 0;">+${yS.p.toFixed(2)} PLN</div><div class="year-grid"><div>PRZYCHÓD<br><b style="color:white">${yS.r.toFixed(0)}</b></div><div>KOSZTY<br><b style="color:var(--danger)">${yS.c.toFixed(0)}</b></div><div>SZTUK<br><b style="color:var(--primary)">${yS.q}</b></div></div></div>`;
@@ -277,7 +269,38 @@
         Object.keys(mD).sort().reverse().forEach(m => {
             const data = mD[m];
             const div = document.createElement('div'); div.className = 'month-acc';
-            div.innerHTML = `<div class="month-header" onclick="toggleMonth('${m}')"><div><b>${m}</b></div><div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div></div><div id="content-${m.replace('/','-')}" class="month-content"><table>${data.items.slice().reverse().map(item => `<tr><td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td><td style="text-align:center">x${item.qty}</td><td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td></tr>`).join('')}</table></div>`;
+            
+            // Filtrujemy i grupujemy tygodniówki
+            let salarySum = 0;
+            let normalItems = [];
+            data.items.forEach(item => {
+                if(item.name === "TYGODNIÓWKA") salarySum += item.prof;
+                else normalItems.push(item);
+            });
+
+            let salaryHtml = salarySum > 0 ? `
+                <tr class="salary-row">
+                    <td><b style="color:var(--warning)">TYGODNIÓWKA (SUMA)</b><br><small>Rozliczenie miesięczne</small></td>
+                    <td style="text-align:center">-</td>
+                    <td style="text-align:right"><b style="color:var(--success)">+${salarySum.toFixed(2)}</b><br><small style="font-size:8px; color:var(--text-dim)">rozliczone</small></td>
+                </tr>` : "";
+
+            div.innerHTML = `
+                <div class="month-header" onclick="toggleMonth('${m}')">
+                    <div><b>${m}</b></div>
+                    <div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div>
+                </div>
+                <div id="content-${m.replace('/','-')}" class="month-content">
+                    <table>
+                        ${salaryHtml}
+                        ${normalItems.slice().reverse().map(item => `
+                        <tr>
+                            <td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td>
+                            <td style="text-align:center">x${item.qty}</td>
+                            <td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td>
+                        </tr>`).join('')}
+                    </table>
+                </div>`;
             monthsContainer.appendChild(div);
         });
     }
