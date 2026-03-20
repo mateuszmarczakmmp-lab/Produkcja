@@ -94,7 +94,6 @@
         </div>
         <div id="profitHint" style="margin-top:15px; text-align:center;"></div>
         <button class="btn btn-blue" onclick="addSale()">DODAJ SPRZEDAŻ</button>
-
         <hr style="margin:25px 0; border:0; border-top:1px solid var(--border);">
         <label style="color:var(--warning)">Zaksięguj Tygodniówkę</label>
         <input type="date" id="salaryDate">
@@ -241,7 +240,7 @@
                 date: d.toLocaleDateString(),
                 year: d.getFullYear(),
                 month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(),
-                name: "TYGODNIÓWKA", client: "Praca", qty: 0, // 0 sztuk żeby nie psuć statystyk
+                name: "TYGODNIÓWKA", client: "Praca", qty: 0,
                 prof: dayVal, cost: 0, rev: dayVal
             });
         }
@@ -258,7 +257,9 @@
 
         db.sales.forEach(s => {
             const rev = s.rev || (s.prof + s.cost);
-            const qty = parseInt(s.qty) || 0;
+            // FILTR BEZPIECZEŃSTWA: Tygodniówka to zawsze 0 sztuk, niezależnie co jest w bazie
+            const qty = s.name === "TYGODNIÓWKA" ? 0 : (parseInt(s.qty) || 0);
+            
             if(s.year == curYear) { yS.p += s.prof; yS.c += s.cost; yS.q += qty; yS.r += rev; }
             if(!mD[s.month]) mD[s.month] = { p: 0, c: 0, q: 0, items: [] };
             mD[s.month].p += s.prof; mD[s.month].c += s.cost; mD[s.month].q += qty; mD[s.month].items.push(s);
@@ -269,38 +270,14 @@
         Object.keys(mD).sort().reverse().forEach(m => {
             const data = mD[m];
             const div = document.createElement('div'); div.className = 'month-acc';
-            
-            // Filtrujemy i grupujemy tygodniówki
             let salarySum = 0;
             let normalItems = [];
             data.items.forEach(item => {
                 if(item.name === "TYGODNIÓWKA") salarySum += item.prof;
                 else normalItems.push(item);
             });
-
-            let salaryHtml = salarySum > 0 ? `
-                <tr class="salary-row">
-                    <td><b style="color:var(--warning)">TYGODNIÓWKA (SUMA)</b><br><small>Rozliczenie miesięczne</small></td>
-                    <td style="text-align:center">-</td>
-                    <td style="text-align:right"><b style="color:var(--success)">+${salarySum.toFixed(2)}</b><br><small style="font-size:8px; color:var(--text-dim)">rozliczone</small></td>
-                </tr>` : "";
-
-            div.innerHTML = `
-                <div class="month-header" onclick="toggleMonth('${m}')">
-                    <div><b>${m}</b></div>
-                    <div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div>
-                </div>
-                <div id="content-${m.replace('/','-')}" class="month-content">
-                    <table>
-                        ${salaryHtml}
-                        ${normalItems.slice().reverse().map(item => `
-                        <tr>
-                            <td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td>
-                            <td style="text-align:center">x${item.qty}</td>
-                            <td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td>
-                        </tr>`).join('')}
-                    </table>
-                </div>`;
+            let salaryHtml = salarySum > 0 ? `<tr class="salary-row"><td><b style="color:var(--warning)">TYGODNIÓWKA (SUMA)</b><br><small>Rozliczenie miesięczne</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--success)">+${salarySum.toFixed(2)}</b><br><small style="font-size:8px; color:var(--text-dim)">rozliczone</small></td></tr>` : "";
+            div.innerHTML = `<div class="month-header" onclick="toggleMonth('${m}')"><div><b>${m}</b></div><div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div></div><div id="content-${m.replace('/','-')}" class="month-content"><table>${salaryHtml}${normalItems.slice().reverse().map(item => `<tr><td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td><td style="text-align:center">x${item.qty}</td><td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><button class="btn-del" onclick="deleteSale('${item.id}')">usuń</button></td></tr>`).join('')}</table></div>`;
             monthsContainer.appendChild(div);
         });
     }
