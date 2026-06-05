@@ -58,7 +58,7 @@
     <div class="nav">
         <button id="tab1" class="nav-btn active" onclick="switchTab('calc')">KREATOR</button>
         <button id="tab2" class="nav-btn" onclick="switchTab('sales')">SPRZEDAŻ</button>
-        <button id="tab3" class="nav-btn" onclick="switchTab('stats')">WYNIKI</button>
+        <button id="tab3" class="nav-btn" onclick="switchTab('stats')">WYNIKI</button><button id="tab4" class="nav-btn" onclick="switchTab('clients')">KLIENCI</button>
     </div>
 
     <div id="calc" class="card active">
@@ -130,6 +130,8 @@
     <div id="yearStatsContainer"></div>
     <div id="monthsContainer"></div>
 </div>
+
+<div id="clients" class="card"><div id="clientsContainer"></div></div>
 </div>
 
 <script>
@@ -415,7 +417,45 @@ function importMerge() {
 }
 
 
-function switchTab(id) { document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); document.getElementById('tab' + (id==='calc'?'1':id==='sales'?'2':'3')).classList.add('active'); if(id === 'sales') renderSelect(); if(id === 'stats') renderStats(); }
+
+function renderClients() {
+    const container = document.getElementById('clientsContainer');
+    if(!container) return;
+
+    let clients = {};
+
+    (db.sales || []).forEach(s => {
+        if(s.name === "TYGODNIÓWKA") return;
+
+        const client = s.client || "Brak";
+
+        if(!clients[client]) {
+            clients[client] = { qty:0, rev:0, prof:0 };
+        }
+
+        clients[client].qty += parseInt(s.qty) || 0;
+        clients[client].rev += parseFloat(s.rev) || 0;
+        clients[client].prof += parseFloat(s.prof) || 0;
+    });
+
+    const rows = Object.entries(clients)
+        .sort((a,b) => b[1].prof - a[1].prof);
+
+    container.innerHTML =
+        '<table>' +
+        '<tr><td><b>Klient</b></td><td><b>Szt.</b></td><td><b>Przychód</b></td><td><b>Zysk</b></td></tr>' +
+        rows.map(([name,data]) =>
+            `<tr>
+                <td><b>${name}</b></td>
+                <td>${data.qty}</td>
+                <td>${data.rev.toFixed(0)} zł</td>
+                <td style="color:var(--success)">${data.prof.toFixed(0)} zł</td>
+            </tr>`
+        ).join('') +
+        '</table>';
+}
+
+function switchTab(id) { document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); const tabMap={calc:'tab1',sales:'tab2',stats:'tab3',clients:'tab4'}; document.getElementById(tabMap[id]).classList.add('active'); if(id==='sales') renderSelect(); if(id==='stats') renderStats(); if(id==='clients') renderClients(); }
 </script>
 <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
