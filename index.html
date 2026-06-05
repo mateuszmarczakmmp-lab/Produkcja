@@ -40,7 +40,13 @@
         .mode-switch { display: flex; gap: 5px; margin-top: 5px; background: #000; padding: 4px; border-radius: 8px; }
         .mode-opt { flex:1; text-align:center; padding: 8px; font-size: 10px; font-weight: 700; border-radius: 6px; cursor:pointer; color: #8e8e93; }
         .mode-opt.active { background: #3a3a3c; color: white; }
-        .salary-row { background: rgba(255, 149, 0, 0.05); }
+        
+.backup-panel{display:flex;gap:10px;margin-bottom:15px}
+.backup-tile{flex:1;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;cursor:pointer}
+.backup-icon{font-size:22px;margin-bottom:4px}
+.backup-text{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase}
+
+.salary-row { background: rgba(255, 149, 0, 0.05); }
     </style>
 </head>
 <body>
@@ -102,11 +108,20 @@
     </div>
 
     <div id="stats" class="card">
-    <div style="margin-bottom:15px;">
-        <button class="btn btn-grey" onclick="exportData()">💾 EKSPORT DANYCH</button>
+    <div class="backup-panel">
+        <div class="backup-tile" onclick="exportData()">
+            <div class="backup-icon">💾</div>
+            <div class="backup-text">Eksport</div>
+        </div>
+        <div class="backup-tile" onclick="document.getElementById('importFile').click()">
+            <div class="backup-icon">📂</div>
+            <div class="backup-text">Import</div>
+        </div>
+        <div class="backup-tile" onclick="importMerge()">
+            <div class="backup-icon">🔄</div>
+            <div class="backup-text">Scal</div>
+        </div>
         <input type="file" id="importFile" accept=".json" style="display:none">
-        <button class="btn btn-blue" onclick="document.getElementById('importFile').click()">📂 IMPORT DANYCH</button>
-        <button class="btn btn-orange" onclick="importMerge()">🔄 IMPORT I SCAL</button>
     </div>
     <div id="yearStatsContainer"></div>
     <div id="monthsContainer"></div>
