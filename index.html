@@ -97,7 +97,7 @@
             <label>Nazwa towaru</label><input type="text" id="buyName" placeholder="Np. Paleta używana">
             <label>Cena zakupu (szt)</label><input type="text" inputmode="decimal" id="buyCost" oninput="updateProfitHint()">
         </div>
-        <label>Data sprzedaży</label><input type="date" id="saleDate"><label>Klient</label><input type="text" id="clientName">
+        <label>Data sprzedaży</label><input type="date" id="saleDate"><label>Klient</label><input type="text" id="clientName" list="clientsList"><datalist id="clientsList"></datalist>
         <div class="row">
             <div style="flex:1"><label>Ilość</label><input type="text" inputmode="decimal" id="saleQty"></div>
             <div style="flex:1"><label>Cena sprzedaży</label><input type="text" inputmode="decimal" id="salePrice" oninput="updateProfitHint()"></div>
@@ -161,7 +161,7 @@
                 const content = await gapi.client.drive.files.get({ fileId: fileId, alt: 'media' });
                 db = content.result || { models: [], sales: [] };
                 document.getElementById('status').innerText = "Połączono ✅";
-                renderSelect(); renderStats(); renderModelEditList(); return true;
+                renderSelect(); renderStats(); renderModelEditList(); renderClientsList(); return true;
             } else { await saveToCloud(); return true; }
         } catch (err) { return false; }
     }
@@ -229,7 +229,7 @@ function calculateLiveCost() {
         if(!n || cost <= 0) return alert("Błąd!");
         const modelData = { name: n, cost: cost, pWood1: document.getElementById('pWood1').value, pWood2: document.getElementById('pWood2').value, pBlocks: document.getElementById('pBlocks').value, d1L: document.getElementById('d1L').value, d1S: document.getElementById('d1S').value, d1G: document.getElementById('d1G').value, d1Qty: document.getElementById('d1Qty').value, d2L: document.getElementById('d2L').value, d2S: document.getElementById('d2S').value, d2G: document.getElementById('d2G').value, d2Qty: document.getElementById('d2Qty').value, bQty: document.getElementById('bQty').value };
         if(editIdx > -1) db.models[editIdx] = modelData; else db.models.push(modelData);
-        cancelEdit(); saveToCloud().then(() => { renderSelect(); renderModelEditList(); });
+        cancelEdit(); saveToCloud().then(() => { renderSelect(); renderModelEditList(); renderClientsList(); });
     }
 
     function renderModelEditList() { document.getElementById('editModelList').innerHTML = db.models.map((m, i) => `<tr><td>${m.name}</td><td style="text-align:right"><button class="btn-del" style="color:var(--primary); border-color:var(--primary); margin-right:5px" onclick="startEdit(${i})">EDYCJA</button><button class="btn-del" onclick="deleteModel(${i})">X</button></td></tr>`).join(''); }
@@ -239,7 +239,7 @@ function calculateLiveCost() {
         document.getElementById('saveBtn').innerText = "AKTUALIZUJ"; document.getElementById('saveBtn').className = "btn btn-orange"; document.getElementById('cancelEditBtn').style.display = "block"; calculateLiveCost(); window.scrollTo(0,0);
     }
     function cancelEdit() { document.getElementById('editIdx').value = "-1"; document.getElementById('saveBtn').innerText = "ZAPISZ MODEL"; document.getElementById('saveBtn').className = "btn btn-green"; document.getElementById('cancelEditBtn').style.display = "none"; document.querySelectorAll('#calc input').forEach(inp => { if(inp.id !== 'pWood1' && inp.id !== 'pWood2' && inp.id !== 'pBlocks') inp.value = ""; }); calculateLiveCost(); }
-    function deleteModel(i) { if(confirm("Usunąć?")) { db.models.splice(i, 1); saveToCloud().then(() => { renderSelect(); renderModelEditList(); }); } }
+    function deleteModel(i) { if(confirm("Usunąć?")) { db.models.splice(i, 1); saveToCloud().then(() => { renderSelect(); renderModelEditList(); renderClientsList(); }); } }
     function renderSelect() { document.getElementById('palletSelect').innerHTML = db.models.map((m, i) => `<option value="${i}">${m.name}</option>`).join(''); updateProfitHint(); }
 
     function updateProfitHint() {
@@ -272,7 +272,7 @@ function calculateLiveCost() {
         const selectedDate = document.getElementById('saleDate').value;
         const d = selectedDate ? new Date(selectedDate) : new Date();
         db.sales.push({ id: Date.now().toString(), date: d.toLocaleDateString(), year: d.getFullYear(), month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(), name: name, client: document.getElementById('clientName').value || "Brak", qty: qty, prof: (sPrice - unitCost) * qty, cost: unitCost * qty, rev: sPrice * qty });
-        saveToCloud().then(ok => { if(ok) { document.getElementById('saleQty').value = ""; renderStats(); alert("Dodano!"); } });
+        saveToCloud().then(ok => { if(ok) { document.getElementById("saleQty").value = ""; renderStats(); renderClientsList(); alert("Dodano!"); } });
     }
 
     function addWeeklySalary() {
@@ -416,6 +416,23 @@ function importMerge() {
     input.click();
 }
 
+
+
+
+function renderClientsList() {
+    const list = document.getElementById('clientsList');
+    if(!list) return;
+
+    const uniqueClients = [...new Set(
+        (db.sales || [])
+            .map(s => (s.client || '').trim())
+            .filter(c => c && c !== 'Brak')
+    )].sort();
+
+    list.innerHTML = uniqueClients.map(c =>
+        `<option value="${c}">`
+    ).join('');
+}
 
 
 function renderClients() {
