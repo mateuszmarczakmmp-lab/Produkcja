@@ -444,10 +444,16 @@ function renderClients() {
     (db.sales || []).forEach(s => {
         if(s.name === "TYGODNIÓWKA") return;
 
-        const client = s.client || "Brak";
+        const originalClient = (s.client || "Brak").trim();
+        const client = originalClient.toUpperCase();
 
         if(!clients[client]) {
-            clients[client] = { qty:0, rev:0, prof:0 };
+            clients[client] = {
+                displayName: originalClient,
+                qty:0,
+                rev:0,
+                prof:0
+            };
         }
 
         clients[client].qty += parseInt(s.qty) || 0;
@@ -463,7 +469,7 @@ function renderClients() {
         '<tr><td><b>Klient</b></td><td><b>Szt.</b></td><td><b>Przychód</b></td><td><b>Zysk</b></td></tr>' +
         rows.map(([name,data]) =>
             `<tr>
-                <td><b>${name}</b></td>
+                <td><b>${data.displayName}</b></td>
                 <td>${data.qty}</td>
                 <td>${data.rev.toFixed(0)} zł</td>
                 <td style="color:var(--success)">${data.prof.toFixed(0)} zł</td>
