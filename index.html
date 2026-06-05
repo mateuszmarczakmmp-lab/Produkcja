@@ -65,8 +65,12 @@
         <input type="hidden" id="editIdx" value="-1">
         <label>Nazwa modelu</label><input type="text" id="pName">
         <div class="row">
-            <div style="flex:1"><label>Deska/m³</label><input type="text" inputmode="decimal" id="pWood" value="700"></div>
+            <div style="flex:1"><label>Deska 1/m³</label><input type="text" inputmode="decimal" id="pWood1" value="700"></div>
+            <div style="flex:1"><label>Deska 2/m³</label><input type="text" inputmode="decimal" id="pWood2" value="700"></div>
+        </div>
+        <div class="row">
             <div style="flex:1"><label>Klocek/m³</label><input type="text" inputmode="decimal" id="pBlocks" value="740"></div>
+            <div style="flex:1"></div>
         </div>
         <label>Deska 1 (Dł x Sz x Gr)CM</label>
         <div class="row"><input type="text" inputmode="decimal" id="d1L" placeholder="Dł"><input type="text" inputmode="decimal" id="d1S" placeholder="Sz"><input type="text" inputmode="decimal" id="d1G" placeholder="Gr"></div>
@@ -187,16 +191,33 @@
         updateProfitHint();
     }
 
-    function calculateLiveCost() {
-        const pw = parseFloat(document.getElementById('pWood').value.replace(',', '.')) || 0;
+    
+function calculateLiveCost() {
+        const pw1 = parseFloat((document.getElementById('pWood1')?.value || document.getElementById('pWood')?.value || '0').replace(',', '.')) || 0;
+        const pw2 = parseFloat((document.getElementById('pWood2')?.value || document.getElementById('pWood')?.value || '0').replace(',', '.')) || 0;
         const pb = parseFloat(document.getElementById('pBlocks').value.replace(',', '.')) || 0;
+
         const getV = (l, s, g, q) => (parseFloat(String(l).replace(',', '.'))*parseFloat(String(s).replace(',', '.'))*parseFloat(String(g).replace(',', '.'))/1000000) * (parseInt(q)||0);
-        const v = getV(document.getElementById('d1L').value, document.getElementById('d1S').value, document.getElementById('d1G').value, document.getElementById('d1Qty').value) + getV(document.getElementById('d2L').value, document.getElementById('d2S').value, document.getElementById('d2G').value, document.getElementById('d2Qty').value);
+
+        const v1 = getV(d1L.value,d1S.value,d1G.value,d1Qty.value);
+        const v2 = getV(d2L.value,d2S.value,d2G.value,d2Qty.value);
         const vb = (7.5 * 7.5 * 7.8 / 1000000) * (parseInt(document.getElementById('bQty').value) || 0);
-        const cost = (v * pw) + (vb * pb);
-        document.getElementById('liveCostDisplay').innerText = cost.toFixed(2) + " PLN / szt.";
+
+        const cost1 = v1 * pw1;
+        const cost2 = v2 * pw2;
+        const costB = vb * pb;
+        const cost = cost1 + cost2 + costB;
+
+        document.getElementById('liveCostDisplay').innerHTML =
+        `Deska 1: ${cost1.toFixed(2)} PLN<br>
+        Deska 2: ${cost2.toFixed(2)} PLN<br>
+        Klocki: ${costB.toFixed(2)} PLN<br>
+        <hr style="border-color:#555;">
+        <b>Razem: ${cost.toFixed(2)} PLN / szt.</b>`;
+
         return cost;
     }
+
     document.querySelectorAll('#calc input').forEach(input => input.addEventListener('input', calculateLiveCost));
 
     function saveModel() {
@@ -204,7 +225,7 @@
         const cost = calculateLiveCost();
         const editIdx = parseInt(document.getElementById('editIdx').value);
         if(!n || cost <= 0) return alert("Błąd!");
-        const modelData = { name: n, cost: cost, pWood: document.getElementById('pWood').value, pBlocks: document.getElementById('pBlocks').value, d1L: document.getElementById('d1L').value, d1S: document.getElementById('d1S').value, d1G: document.getElementById('d1G').value, d1Qty: document.getElementById('d1Qty').value, d2L: document.getElementById('d2L').value, d2S: document.getElementById('d2S').value, d2G: document.getElementById('d2G').value, d2Qty: document.getElementById('d2Qty').value, bQty: document.getElementById('bQty').value };
+        const modelData = { name: n, cost: cost, pWood1: document.getElementById('pWood1').value, pWood2: document.getElementById('pWood2').value, pBlocks: document.getElementById('pBlocks').value, d1L: document.getElementById('d1L').value, d1S: document.getElementById('d1S').value, d1G: document.getElementById('d1G').value, d1Qty: document.getElementById('d1Qty').value, d2L: document.getElementById('d2L').value, d2S: document.getElementById('d2S').value, d2G: document.getElementById('d2G').value, d2Qty: document.getElementById('d2Qty').value, bQty: document.getElementById('bQty').value };
         if(editIdx > -1) db.models[editIdx] = modelData; else db.models.push(modelData);
         cancelEdit(); saveToCloud().then(() => { renderSelect(); renderModelEditList(); });
     }
@@ -212,10 +233,10 @@
     function renderModelEditList() { document.getElementById('editModelList').innerHTML = db.models.map((m, i) => `<tr><td>${m.name}</td><td style="text-align:right"><button class="btn-del" style="color:var(--primary); border-color:var(--primary); margin-right:5px" onclick="startEdit(${i})">EDYCJA</button><button class="btn-del" onclick="deleteModel(${i})">X</button></td></tr>`).join(''); }
     function startEdit(i) {
         const m = db.models[i]; document.getElementById('editIdx').value = i; document.getElementById('pName').value = m.name;
-        ['pWood','pBlocks','d1L','d1S','d1G','d1Qty','d2L','d2S','d2G','d2Qty','bQty'].forEach(k => document.getElementById(k).value = m[k] || "");
+        ['pWood1','pWood2','pBlocks','d1L','d1S','d1G','d1Qty','d2L','d2S','d2G','d2Qty','bQty'].forEach(k => document.getElementById(k).value = m[k] || "");
         document.getElementById('saveBtn').innerText = "AKTUALIZUJ"; document.getElementById('saveBtn').className = "btn btn-orange"; document.getElementById('cancelEditBtn').style.display = "block"; calculateLiveCost(); window.scrollTo(0,0);
     }
-    function cancelEdit() { document.getElementById('editIdx').value = "-1"; document.getElementById('saveBtn').innerText = "ZAPISZ MODEL"; document.getElementById('saveBtn').className = "btn btn-green"; document.getElementById('cancelEditBtn').style.display = "none"; document.querySelectorAll('#calc input').forEach(inp => { if(inp.id !== 'pWood' && inp.id !== 'pBlocks') inp.value = ""; }); calculateLiveCost(); }
+    function cancelEdit() { document.getElementById('editIdx').value = "-1"; document.getElementById('saveBtn').innerText = "ZAPISZ MODEL"; document.getElementById('saveBtn').className = "btn btn-green"; document.getElementById('cancelEditBtn').style.display = "none"; document.querySelectorAll('#calc input').forEach(inp => { if(inp.id !== 'pWood1' && inp.id !== 'pWood2' && inp.id !== 'pBlocks') inp.value = ""; }); calculateLiveCost(); }
     function deleteModel(i) { if(confirm("Usunąć?")) { db.models.splice(i, 1); saveToCloud().then(() => { renderSelect(); renderModelEditList(); }); } }
     function renderSelect() { document.getElementById('palletSelect').innerHTML = db.models.map((m, i) => `<option value="${i}">${m.name}</option>`).join(''); updateProfitHint(); }
 
@@ -234,49 +255,23 @@
         } else document.getElementById('profitHint').innerText = "";
     }
 
-    
-function addSale() {
+    function addSale() {
         const qty = parseInt(document.getElementById('saleQty').value);
         const sPrice = parseFloat(document.getElementById('salePrice').value.replace(',', '.'));
         if(!qty || !sPrice) return alert("Błąd!");
-
         let name, unitCost;
-
         if(saleMode === 'prod') {
             const idx = document.getElementById('palletSelect').value;
-            name = db.models[idx].name;
-            unitCost = db.models[idx].cost;
+            name = db.models[idx].name; unitCost = db.models[idx].cost;
         } else {
             name = "[Kupno] " + document.getElementById('buyName').value;
             unitCost = parseFloat(document.getElementById('buyCost').value.replace(',', '.')) || 0;
         }
-
-        let selectedDate = document.getElementById('saleDate').value;
-
-        let d = selectedDate ? new Date(selectedDate) : new Date();
-
-        db.sales.push({
-            id: Date.now().toString(),
-            date: d.toLocaleDateString(),
-            year: d.getFullYear(),
-            month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(),
-            name: name,
-            client: document.getElementById('clientName').value || "Brak",
-            qty: qty,
-            prof: (sPrice - unitCost) * qty,
-            cost: unitCost * qty,
-            rev: sPrice * qty
-        });
-
-        saveToCloud().then(ok => {
-            if(ok) {
-                document.getElementById('saleQty').value = "";
-                renderStats();
-                alert("Dodano!");
-            }
-        });
+        const selectedDate = document.getElementById('saleDate').value;
+        const d = selectedDate ? new Date(selectedDate) : new Date();
+        db.sales.push({ id: Date.now().toString(), date: d.toLocaleDateString(), year: d.getFullYear(), month: (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getFullYear(), name: name, client: document.getElementById('clientName').value || "Brak", qty: qty, prof: (sPrice - unitCost) * qty, cost: unitCost * qty, rev: sPrice * qty });
+        saveToCloud().then(ok => { if(ok) { document.getElementById('saleQty').value = ""; renderStats(); alert("Dodano!"); } });
     }
-
 
     function addWeeklySalary() {
         const dateInput = document.getElementById('salaryDate').value;
