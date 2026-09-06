@@ -197,11 +197,11 @@
 <script>
     const GITHUB_OWNER = 'mateuszmarczakmmp-lab';
     const GITHUB_REPO = 'Produkcja-DB';
-    const GITHUB_BRANCH = 'main';
     const GITHUB_DB_PATH = 'database.json';
-    const GITHUB_API = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_DB_PATH}`;
+    const GITHUB_REPO_API = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
+    const GITHUB_API = `${GITHUB_REPO_API}/contents/${GITHUB_DB_PATH}`;
 
-    let githubFileSha = null, saleMode = 'prod';
+    let githubFileSha = null, githubBranch = null, saleMode = 'prod';
     let db = { models: [], sales: [] };
 
     function getGithubToken() { return localStorage.getItem('github_produkcja_token') || ''; }
@@ -215,6 +215,7 @@
         localStorage.setItem('github_produkcja_token', token);
         hideGithubSetup();
         githubFileSha = null;
+        githubBranch = null;
         await initializeFile();
     }
 
@@ -239,6 +240,33 @@
         return new TextDecoder().decode(bytes);
     }
 
+    async function githubErrorText(resp) {
+        let body = {};
+        try { body = await resp.json(); } catch(e) {}
+        const msg = body && body.message ? body.message : 'Brak dodatkowego komunikatu';
+        return `HTTP ${resp.status}: ${msg}`;
+    }
+
+    async function checkRepositoryAccess() {
+        const resp = await fetch(GITHUB_REPO_API, { headers: githubHeaders() });
+        if(!resp.ok) {
+            const details = await githubErrorText(resp);
+            if(resp.status === 404) {
+                throw new Error(`${details}\n\nGitHub nie udostępnia repozytorium ${GITHUB_REPO} temu tokenowi. Sprawdź, czy token ma wybrane dokładnie repozytorium ${GITHUB_REPO}.`);
+            }
+            if(resp.status === 403) {
+                throw new Error(`${details}\n\nToken nie ma wymaganego dostępu. Ustaw Contents: Read and write.`);
+            }
+            if(resp.status === 401) {
+                throw new Error(`${details}\n\nToken jest nieprawidłowy albo wygasł.`);
+            }
+            throw new Error(details);
+        }
+        const repo = await resp.json();
+        githubBranch = repo.default_branch || 'main';
+        return repo;
+    }
+
     async function initializeFile() {
         if(!getGithubToken()) {
             setStatus('Wymagany token GitHub ⚠️');
@@ -248,60 +276,73 @@
         }
         setStatus('Łączenie z GitHub... ⏳');
         try {
-            const resp = await fetch(`${GITHUB_API}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, { headers: githubHeaders() });
+            const repo = await checkRepositoryAccess();
+            // Nie podajemy ref na sztywno. GitHub użyje domyślnej gałęzi repozytorium.
+            const resp = await fetch(GITHUB_API, { headers: githubHeaders() });
             if(resp.status === 404) {
                 db = { models: [], sales: [] };
                 githubFileSha = null;
-                const ok = await saveToCloud();
+                const ok = await saveToCloud(true, repo && repo.size === 0);
                 if(ok) setStatus('Połączono z GitHub ✅');
                 renderSelect(); renderStats(); renderModelEditList(); renderClientsList();
                 return ok;
             }
-            if(!resp.ok) {
-                const err = await resp.json().catch(()=>({}));
-                throw new Error(err.message || `HTTP ${resp.status}`);
-            }
+            if(!resp.ok) throw new Error(await githubErrorText(resp));
             const file = await resp.json();
             githubFileSha = file.sha;
             const parsed = JSON.parse(base64ToUtf8(file.content));
             db = parsed && parsed.data && parsed.version ? parsed.data : parsed;
             if(!db || !Array.isArray(db.models) || !Array.isArray(db.sales)) db = { models: [], sales: [] };
-            setStatus('Połączono z GitHub ✅');
+            setStatus(`Połączono z GitHub ✅ (${githubBranch})`);
             renderSelect(); renderStats(); renderModelEditList(); renderClientsList();
             return true;
         } catch(err) {
             console.error(err);
             setStatus('Błąd GitHub ❌');
-            alert('Nie udało się połączyć z GitHub. Sprawdź token i dostęp do repozytorium Produkcja-DB.');
+            alert('Nie udało się połączyć z GitHub.\n\n' + (err && err.message ? err.message : err));
             showGithubSetup();
             return false;
         }
     }
 
-    async function saveToCloud() {
+    async function saveToCloud(isInitialCreate = false, repoIsEmpty = false) {
         const token = getGithubToken();
         if(!token) { setStatus('Brak tokenu GitHub ⚠️'); showGithubSetup(); return false; }
         setStatus('Zapisywanie na GitHub... ⏳');
         try {
+            if(!githubBranch) await checkRepositoryAccess();
             const payload = {
                 message: `Aktualizacja bazy ${new Date().toLocaleString('pl-PL')}`,
-                content: utf8ToBase64(JSON.stringify(db, null, 2)),
-                branch: GITHUB_BRANCH
+                content: utf8ToBase64(JSON.stringify(db, null, 2))
             };
-            if(githubFileSha) payload.sha = githubFileSha;
-            const resp = await fetch(GITHUB_API, {
+            if(githubFileSha) {
+                payload.sha = githubFileSha;
+                payload.branch = githubBranch;
+            } else if(!repoIsEmpty && githubBranch) {
+                // Dla istniejącego repo zapisujemy do domyślnej gałęzi.
+                payload.branch = githubBranch;
+            }
+            // Dla całkowicie pustego repo nie wysyłamy pola branch. GitHub utworzy plik na gałęzi domyślnej.
+            let resp = await fetch(GITHUB_API, {
                 method: 'PUT',
                 headers: { ...githubHeaders(), 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if(!resp.ok) {
-                if(resp.status === 409 || resp.status === 422) {
-                    const latest = await fetch(`${GITHUB_API}?ref=${encodeURIComponent(GITHUB_BRANCH)}`, { headers: githubHeaders() });
-                    if(latest.ok) { const f=await latest.json(); githubFileSha=f.sha; payload.sha=githubFileSha; const retry=await fetch(GITHUB_API,{method:'PUT',headers:{...githubHeaders(),'Content-Type':'application/json'},body:JSON.stringify(payload)}); if(retry.ok){ const r=await retry.json(); githubFileSha=r.content.sha; setStatus('Zapisano na GitHub ✅'); return true; } }
+            if(!resp.ok && (resp.status === 409 || resp.status === 422)) {
+                const latest = await fetch(GITHUB_API, { headers: githubHeaders() });
+                if(latest.ok) {
+                    const f = await latest.json();
+                    githubFileSha = f.sha;
+                    payload.sha = githubFileSha;
+                    if(githubBranch) payload.branch = githubBranch;
+                    resp = await fetch(GITHUB_API, {
+                        method:'PUT',
+                        headers:{...githubHeaders(),'Content-Type':'application/json'},
+                        body:JSON.stringify(payload)
+                    });
                 }
-                const err = await resp.json().catch(()=>({}));
-                throw new Error(err.message || `HTTP ${resp.status}`);
             }
+            if(!resp.ok) throw new Error(await githubErrorText(resp));
             const result = await resp.json();
             githubFileSha = result.content && result.content.sha ? result.content.sha : githubFileSha;
             setStatus('Zapisano na GitHub ✅');
@@ -309,7 +350,7 @@
         } catch(err) {
             console.error(err);
             setStatus('Błąd zapisu GitHub ❌');
-            alert('Nie udało się zapisać danych na GitHub.');
+            alert('Nie udało się zapisać danych na GitHub.\n\n' + (err && err.message ? err.message : err));
             return false;
         }
     }
