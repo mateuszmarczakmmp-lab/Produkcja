@@ -76,6 +76,8 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
 .container{max-width:560px;padding:14px 14px 96px;}
 .app-header{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 14px;}
 .brand-wrap{display:flex;align-items:center;gap:10px}.brand-icon{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#1c2f44,#0d1721);display:grid;place-items:center;font-size:23px;border:1px solid #29425d}.brand-title{font-size:20px;font-weight:850;letter-spacing:.2px}.brand-sub{font-size:11px;color:var(--text-dim);margin-top:2px}.header-actions{display:flex;align-items:center;gap:8px}.sync-pill{font-size:10px;font-weight:800;padding:7px 9px;border-radius:999px;background:rgba(50,215,75,.12);color:var(--success);border:1px solid rgba(50,215,75,.28)}.gear-btn{width:36px;height:36px;border-radius:11px;border:1px solid var(--border);background:#15181d;color:#fff;font-size:17px;cursor:pointer}.sync-status{margin:0 0 10px;font-size:10px}.nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(540px,calc(100% - 18px));z-index:9000;margin:0;padding:6px;border:1px solid #2b3138;background:rgba(18,20,24,.95);backdrop-filter:blur(16px);box-shadow:0 12px 40px rgba(0,0,0,.45);border-radius:18px}.nav-btn{font-size:9px;padding:9px 3px;border-radius:12px;display:flex;flex-direction:column;gap:3px;align-items:center}.nav-btn::before{font-size:17px;line-height:1}.nav-btn:nth-child(1)::before{content:'⌂'}.nav-btn:nth-child(2)::before{content:'⚒'}.nav-btn:nth-child(3)::before{content:'$'}.nav-btn:nth-child(4)::before{content:'▥'}.nav-btn:nth-child(5)::before{content:'♟'}.nav-btn.active{background:#0a84ff1f;color:#53a7ff;box-shadow:inset 0 0 0 1px #0a84ff55}.card{padding:0;background:transparent;border:0}.section-card,.year-box,.month-acc,.github-setup{background:linear-gradient(180deg,#171a1f,#121419);border:1px solid #2b3138;box-shadow:0 10px 30px rgba(0,0,0,.18)}.screen-title{display:flex;align-items:center;gap:10px;margin:10px 2px 14px}.screen-title .icon{width:38px;height:38px;border-radius:12px;background:#0a84ff20;color:#56aaff;display:grid;place-items:center;font-size:20px}.screen-title h2{font-size:21px;margin:0}.screen-title p{margin:3px 0 0;color:var(--text-dim);font-size:11px}.dashboard-greeting{margin:4px 2px 14px}.dashboard-greeting h1{font-size:28px;margin:2px 0 3px}.dashboard-greeting p{margin:0;color:var(--text-dim);font-size:12px}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.metric{background:linear-gradient(145deg,#151b22,#111419);border:1px solid #29313a;border-radius:14px;padding:13px}.metric small{color:var(--text-dim);font-size:10px;text-transform:uppercase;font-weight:800}.metric strong{display:block;font-size:22px;margin-top:5px}.metric.blue strong{color:#68b1ff}.metric.green strong{color:var(--success)}.metric.orange strong{color:#ffb454}.panel{background:linear-gradient(180deg,#171a1f,#121419);border:1px solid #2b3138;border-radius:15px;padding:14px;margin-bottom:12px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.panel-head b{font-size:14px}.panel-head span{font-size:10px;color:#53a7ff}.recent-item,.client-card{background:#11151a;border:1px solid #242a31;border-radius:12px;padding:11px;margin-top:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}.recent-main b,.client-card b{font-size:13px}.recent-main small,.client-card small{display:block;color:var(--text-dim);font-size:10px;margin-top:3px}.recent-money{text-align:right}.recent-money b{font-size:13px}.profit{color:var(--success)}.loss{color:var(--danger)}input,select{background:#15181d;border-color:#2d343c;border-radius:10px}label{font-size:9px}.btn{border-radius:12px}.prod-cost-display{border-radius:14px;background:linear-gradient(180deg,#2a240d,#17170f);border-color:#7a6414}.mode-switch{padding:5px;border-radius:12px;background:#0e1013}.mode-opt{border-radius:9px;padding:11px 7px}.mode-opt.active{background:#163a27;color:#62f07a}.year-box{text-align:left;padding:16px;border-radius:15px}.year-box small{color:var(--text-dim)}.year-grid{grid-template-columns:repeat(3,1fr)}.month-header{padding:14px}.month-content{background:#101216}.clickable-row:hover{background:#1a1f25}.github-setup{border-radius:14px}.modal{background:#14171c;border-color:#303740}.details-grid{gap:10px}.detail-box{background:#0f1216;border-color:#272d34}.top-clients-bar{height:6px;background:#232a31;border-radius:99px;overflow:hidden;margin-top:6px}.top-clients-fill{height:100%;background:linear-gradient(90deg,#0a84ff,#5eb2ff);border-radius:99px}.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick-card{padding:15px;border-radius:14px;border:1px solid #2a3138;background:#14181d;cursor:pointer}.quick-card strong{display:block;margin-top:6px}.quick-card span{font-size:20px}.quick-card small{color:var(--text-dim)}
+.dashboard-metric-grid{grid-template-columns:repeat(2,1fr)}
+@media(min-width:900px){.dashboard-metric-grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:900px){.container{max-width:980px}.dashboard-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.nav{width:650px}}
 
 </style>
@@ -108,9 +110,11 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
 
     <div id="dashboard" class="card active">
   <div class="dashboard-greeting"><small id="dashDate" style="color:var(--text-dim)"></small><h1>Dzień dobry!</h1><p>Najważniejsze informacje z Twojej firmy.</p></div>
-  <div class="metric-grid">
-    <div class="metric blue"><small>Sprzedaż miesiąca</small><strong id="dashMonthRev">0 zł</strong><div id="dashMonthQty" style="font-size:10px;color:var(--text-dim);margin-top:3px">0 szt.</div></div>
-    <div class="metric green"><small>Zysk miesiąca</small><strong id="dashMonthProfit">0 zł</strong><div id="dashMargin" style="font-size:10px;color:var(--text-dim);margin-top:3px">Marża 0%</div></div>
+  <div class="metric-grid dashboard-metric-grid">
+    <div class="metric blue"><small>Przychód miesiąca</small><strong id="dashMonthRev">0 zł</strong><div id="dashMonthQty" style="font-size:10px;color:var(--text-dim);margin-top:3px">0 szt.</div></div>
+    <div class="metric orange"><small>Koszty miesiąca</small><strong id="dashMonthCost">0 zł</strong><div style="font-size:10px;color:var(--text-dim);margin-top:3px">produkcja palet</div></div>
+    <div class="metric green"><small>Zysk z palet</small><strong id="dashMonthProfit">0 zł</strong><div id="dashMargin" style="font-size:10px;color:var(--text-dim);margin-top:3px">Marża 0%</div></div>
+    <div class="metric green"><small>Zysk + pensja</small><strong id="dashMonthTotalProfit">0 zł</strong><div id="dashSalaryInfo" style="font-size:10px;color:var(--text-dim);margin-top:3px">Tygodniówki: 0 zł</div></div>
   </div>
   <div class="dashboard-layout">
     <div>
@@ -789,18 +793,21 @@ function renderDashboard(){
     const now=new Date();
     const dateEl=document.getElementById('dashDate');
     if(dateEl) dateEl.textContent=now.toLocaleDateString('pl-PL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const sales=(db.sales||[]).filter(s=>s.name!=='TYGODNIÓWKA');
+    const allSales=(db.sales||[]);
+    const sales=allSales.filter(s=>s.name!=='TYGODNIÓWKA');
     const todayKey=now.toLocaleDateString('pl-PL');
     const monthKey=String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
     const today=sales.filter(s=>s.date===todayKey);
     const month=sales.filter(s=>s.month===monthKey);
+    const monthSalary=allSales.filter(s=>s.name==='TYGODNIÓWKA' && s.month===monthKey);
     const sum=(arr,k)=>arr.reduce((a,s)=>a+(Number(s[k])||0),0);
     const qty=arr=>arr.reduce((a,s)=>a+(parseInt(s.qty)||0),0);
-    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mProf=sum(month,'prof'), mQty=qty(month);
+    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mCost=sum(month,'cost'), mProf=sum(month,'prof'), salarySum=sum(monthSalary,'prof'), mTotalProf=mProf+salarySum, mQty=qty(month);
     const set=(id,val)=>{const e=document.getElementById(id); if(e)e.textContent=val;};
     set('dashTodayRev',money(tRev)); set('dashTodayProfit',money(tProf)); set('dashTodayQty',qty(today)+' szt.');
-    set('dashMonthRev',money(mRev)); set('dashMonthProfit',money(mProf)); set('dashMonthQty',mQty+' szt.');
+    set('dashMonthRev',money(mRev)); set('dashMonthCost',money(mCost)); set('dashMonthProfit',money(mProf)); set('dashMonthTotalProfit',money(mTotalProf)); set('dashMonthQty',mQty+' szt.');
     set('dashMargin','Marża '+(mRev?((mProf/mRev)*100).toFixed(1):'0,0')+'%');
+    set('dashSalaryInfo','Tygodniówki: '+money(salarySum));
     const recent=document.getElementById('dashRecent');
     if(recent){
       const r=sales.slice().reverse().slice(0,4);
