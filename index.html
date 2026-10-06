@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Produkcja</title>
+    <title>WIMAR GROUP — Panel firmy</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/12721/12721102.png?v=4">
@@ -80,13 +80,38 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
 @media(min-width:900px){.dashboard-metric-grid{grid-template-columns:repeat(4,1fr)}}
 @media(min-width:900px){.container{max-width:980px}.dashboard-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.nav{width:650px}}
 
+
+/* ===== WIMAR GROUP / 4 MAIN SECTIONS ===== */
+.main-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:rgba(18,20,24,.96);padding:6px;border:1px solid #2b3138;border-radius:18px;margin-bottom:8px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.main-nav-btn{border:0;background:transparent;color:var(--text-dim);padding:11px 4px;border-radius:12px;font-size:10px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.main-nav-btn .main-icon{font-size:18px;line-height:1}
+.main-nav-btn.active{background:#0a84ff20;color:#53a7ff;box-shadow:inset 0 0 0 1px #0a84ff55}
+.subnav{display:none;gap:6px;overflow-x:auto;padding:3px 2px 10px}
+.subnav.open{display:flex}
+.subnav-btn{white-space:nowrap;border:1px solid #2b3138;background:#14181d;color:var(--text-dim);padding:8px 11px;border-radius:10px;font-size:10px;font-weight:800;cursor:pointer}
+.subnav-btn.active{background:#15304a;color:#67b3ff;border-color:#245b89}
+.employee-card{background:linear-gradient(180deg,#171a1f,#121419);border:1px solid #2b3138;border-radius:15px;padding:14px;margin-bottom:10px}
+.employee-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.employee-name{font-weight:800;font-size:15px}.employee-meta{font-size:10px;color:var(--text-dim);margin-top:3px}
+.employee-money{text-align:right}.employee-money strong{font-size:18px;color:var(--success)}
+.employee-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.employee-stat{background:#0f1216;border:1px solid #272d34;border-radius:10px;padding:9px;text-align:center}
+.employee-stat small{display:block;color:var(--text-dim);font-size:8px;text-transform:uppercase}.employee-stat b{display:block;margin-top:3px;font-size:12px}
+.status-paid{color:var(--success)}.status-unpaid{color:var(--warning)}
+.work-row{background:#11151a;border:1px solid #242a31;border-radius:11px;padding:11px;margin-top:8px;display:flex;justify-content:space-between;gap:10px}
+.work-row small{color:var(--text-dim);font-size:10px}
+.empty-state{padding:24px;text-align:center;color:var(--text-dim);background:#11151a;border:1px dashed #303740;border-radius:12px}
+.employee-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.employee-summary .metric{margin:0}
+@media(max-width:420px){.main-nav-btn{font-size:9px}.main-nav-btn .main-icon{font-size:16px}.employee-stats{grid-template-columns:1fr 1fr}.employee-stats .employee-stat:last-child{grid-column:1/-1}}
+
 </style>
 </head>
 <body>
 
 <div class="container">
     <div class="app-header">
-      <div class="brand-wrap"><div class="brand-icon">🪵</div><div><div class="brand-title">MAR-PAL</div><div class="brand-sub">Panel produkcji</div></div></div>
+      <div class="brand-wrap"><div class="brand-icon">🪵</div><div><div class="brand-title">WIMAR GROUP</div><div class="brand-sub">Panel firmy</div></div></div>
       <div class="header-actions"><div id="syncPill" class="sync-pill">● Łączenie</div><button class="gear-btn" onclick="showGithubSetup()">⚙</button></div>
     </div>
     <div id="status" class="sync-status" style="display:none">Ładowanie systemu...</div>
@@ -100,15 +125,28 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
     </div>
     <button id="githubSettingsBtn" style="display:none" onclick="showGithubSetup()">USTAWIENIA GITHUB</button>
 
-    <div class="nav">
-        <button id="tab0" class="nav-btn active" onclick="switchTab('dashboard')">PULPIT</button>
-        <button id="tab1" class="nav-btn" onclick="switchTab('calc')">PRODUKCJA</button>
-        <button id="tab2" class="nav-btn" onclick="switchTab('sales')">SPRZEDAŻ</button>
-        <button id="tab3" class="nav-btn" onclick="switchTab('stats')">WYNIKI</button>
-        <button id="tab4" class="nav-btn" onclick="switchTab('clients')">KLIENCI</button>
+    <div class="main-nav">
+      <button id="main-dashboard" class="main-nav-btn active" onclick="openMainSection('dashboard')"><span class="main-icon">⌂</span>PULPIT</button>
+      <button id="main-production" class="main-nav-btn" onclick="openMainSection('production')"><span class="main-icon">⚒</span>PRODUKCJA</button>
+      <button id="main-employees" class="main-nav-btn" onclick="openMainSection('employees')"><span class="main-icon">♟</span>PRACOWNICY</button>
+      <button id="main-finance" class="main-nav-btn" onclick="openMainSection('finance')"><span class="main-icon">▥</span>FINANSE</button>
     </div>
-
-    <div id="dashboard" class="card active">
+    <div id="subnav-production" class="subnav">
+      <button class="subnav-btn" data-target="calc" onclick="openSubPage('production','calc')">KALKULACJA</button>
+      <button class="subnav-btn active" data-target="sales" onclick="openSubPage('production','sales')">SPRZEDAŻ</button>
+      <button class="subnav-btn" data-target="clients" onclick="openSubPage('production','clients')">KLIENCI</button>
+    </div>
+    <div id="subnav-employees" class="subnav">
+      <button class="subnav-btn" data-target="employeesPage" onclick="openSubPage('employees','employeesPage')">PRACOWNICY</button>
+      <button class="subnav-btn active" data-target="workPage" onclick="openSubPage('employees','workPage')">CZAS PRACY</button>
+      <button class="subnav-btn" data-target="payoutsPage" onclick="openSubPage('employees','payoutsPage')">TYGODNIÓWKI</button>
+    </div>
+    <div id="subnav-finance" class="subnav">
+      <button class="subnav-btn active" data-target="stats" onclick="openSubPage('finance','stats')">WYNIKI</button>
+      <button class="subnav-btn" data-target="employeeCostsPage" onclick="openSubPage('finance','employeeCostsPage')">KOSZTY PRACOWNIKÓW</button>
+      <button class="subnav-btn" data-target="backupPage" onclick="openSubPage('finance','backupPage')">KOPIA DANYCH</button>
+    </div>
+<div id="dashboard" class="card active">
   <div class="dashboard-greeting"><small id="dashDate" style="color:var(--text-dim)"></small><h1 id="dashGreeting">Dzień dobry!</h1><p>Najważniejsze informacje z Twojej firmy.</p></div>
   <div class="metric-grid dashboard-metric-grid">
     <div class="metric blue"><small>Przychód miesiąca</small><strong id="dashMonthRev">0 zł</strong><div id="dashMonthQty" style="font-size:10px;color:var(--text-dim);margin-top:3px">0 szt.</div></div>
@@ -168,11 +206,6 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
         </div>
         <div id="profitHint" style="margin-top:15px; text-align:center;"></div>
         <button class="btn btn-blue" onclick="addSale()">DODAJ SPRZEDAŻ</button>
-        <hr style="margin:25px 0; border:0; border-top:1px solid var(--border);">
-        <label style="color:var(--warning)">Zaksięguj Tygodniówkę</label>
-        <input type="date" id="salaryDate">
-        <input type="text" inputmode="decimal" id="salaryAmount" placeholder="Kwota tygodniówki (PLN)">
-        <button class="btn btn-orange" onclick="addWeeklySalary()">ROZLICZ TYGODNIÓWKĘ</button>
     </div>
 
     <div id="stats" class="card"><div class="screen-title"><div class="icon">▥</div><div><h2>Wyniki</h2><p>Podsumowanie sprzedaży</p></div></div>
@@ -195,7 +228,42 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
     <div id="monthsContainer"></div>
 </div>
 
-<div id="clients" class="card"><div class="screen-title"><div class="icon">♟</div><div><h2>Klienci</h2><p>Zarządzaj historią klientów</p></div></div><div id="clientsContainer"></div></div>
+
+    <div id="employeesPage" class="card">
+      <div class="screen-title"><div class="icon">♟</div><div><h2>Pracownicy</h2><p>Lista pracowników i bieżące rozliczenie</p></div></div>
+      <button class="btn btn-blue" onclick="openEmployeeForm()">➕ DODAJ PRACOWNIKA</button>
+      <div id="employeesContainer" style="margin-top:12px"></div>
+    </div>
+
+    <div id="workPage" class="card">
+      <div class="screen-title"><div class="icon">⏱</div><div><h2>Czas pracy</h2><p>Dodaj godziny rozpoczęcia i zakończenia</p></div></div>
+      <label>Pracownik</label><select id="workEmployee" onchange="prefillEmployeeRate()"></select>
+      <label>Data</label><input type="date" id="workDate">
+      <div class="row"><div style="flex:1"><label>Rozpoczęcie</label><input type="time" id="workStart" onchange="updateWorkPreview()"></div><div style="flex:1"><label>Zakończenie</label><input type="time" id="workEnd" onchange="updateWorkPreview()"></div></div>
+      <label>Stawka godzinowa</label><input type="text" inputmode="decimal" id="workRate" oninput="updateWorkPreview()">
+      <div id="workPreview" class="prod-cost-display">0 h 00 min • 0,00 zł</div>
+      <button class="btn btn-green" onclick="addWorkEntry()">DODAJ CZAS PRACY</button>
+      <div class="panel" style="margin-top:14px"><div class="panel-head"><b>Ostatnie wpisy</b><span id="workEntryCount"></span></div><div id="workEntriesContainer"></div></div>
+    </div>
+
+    <div id="payoutsPage" class="card">
+      <div class="screen-title"><div class="icon">💰</div><div><h2>Tygodniówki</h2><p>Rozliczanie pracowników</p></div></div>
+      <div class="employee-summary"><div class="metric orange"><small>Godziny do wypłaty</small><strong id="pendingHours">0 h</strong></div><div class="metric green"><small>Do wypłaty</small><strong id="pendingAmount">0 zł</strong></div></div>
+      <div id="payoutsContainer"></div>
+    </div>
+
+    <div id="employeeCostsPage" class="card">
+      <div class="screen-title"><div class="icon">▤</div><div><h2>Koszty pracowników</h2><p>Miesięczne wydatki i historia tygodniówek</p></div></div>
+      <div id="employeeCostsContainer"></div>
+    </div>
+
+    <div id="backupPage" class="card">
+      <div class="screen-title"><div class="icon">💾</div><div><h2>Kopia danych</h2><p>Eksport, import i scalanie bazy</p></div></div>
+      <div class="backup-panel"><div class="backup-tile" onclick="exportData()"><div class="backup-icon">💾</div><div class="backup-text">Eksport</div></div><div class="backup-tile" onclick="document.getElementById('importFile').click()"><div class="backup-icon">📂</div><div class="backup-text">Import</div></div><div class="backup-tile" onclick="importMerge()"><div class="backup-icon">🔄</div><div class="backup-text">Scal</div></div></div>
+      <p style="font-size:11px;color:var(--text-dim);line-height:1.5">Kopia obejmuje również pracowników, godziny pracy i historię wypłat.</p>
+    </div>
+
+    <div id="clients" class="card"><div class="screen-title"><div class="icon">♟</div><div><h2>Klienci</h2><p>Zarządzaj historią klientów</p></div></div><div id="clientsContainer"></div></div>
 </div>
 
 <div id="saleModalBackdrop" class="modal-backdrop" onclick="if(event.target===this) closeSaleModal()">
@@ -242,7 +310,7 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
     const GITHUB_API = `${GITHUB_REPO_API}/contents/${GITHUB_DB_PATH}`;
 
     let githubFileSha = null, githubBranch = null, saleMode = 'prod';
-    let db = { models: [], sales: [] };
+    let db = { models: [], sales: [], employees: [], workEntries: [], payouts: [] };
 
     function getGithubToken() { return localStorage.getItem('github_produkcja_token') || ''; }
     function setStatus(msg) { const el=document.getElementById('status'); if(el) el.innerText=msg; const pill=document.getElementById('syncPill'); if(pill){ if(msg.includes('✅')){pill.textContent='● Online'; pill.style.color='var(--success)';} else if(msg.includes('❌')){pill.textContent='● Błąd'; pill.style.color='var(--danger)';} else {pill.textContent='● Synchronizacja'; pill.style.color='var(--warning)';}} }
@@ -307,11 +375,24 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
         return repo;
     }
 
+    function renderAllViews(){
+        migrateEmployeeDb();
+        try{ renderSelect(); }catch(e){ console.error('renderSelect',e); }
+        try{ renderStats(); }catch(e){ console.error('renderStats',e); }
+        try{ renderModelEditList(); }catch(e){ console.error('renderModelEditList',e); }
+        try{ renderClientsList(); }catch(e){ console.error('renderClientsList',e); }
+        try{ renderDashboard(); }catch(e){ console.error('renderDashboard',e); }
+        try{ renderEmployees(); }catch(e){ console.error('renderEmployees',e); }
+        try{ renderWorkForm(); }catch(e){ console.error('renderWorkForm',e); }
+        try{ renderPayouts(); }catch(e){ console.error('renderPayouts',e); }
+        try{ renderEmployeeCosts(); }catch(e){ console.error('renderEmployeeCosts',e); }
+    }
+
     async function initializeFile() {
         if(!getGithubToken()) {
             setStatus('Wymagany token GitHub ⚠️');
             showGithubSetup();
-            renderSelect(); renderStats(); renderModelEditList(); renderClientsList(); renderDashboard();
+            renderAllViews();
             return false;
         }
         setStatus('Łączenie z GitHub... ⏳');
@@ -320,21 +401,26 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
             // Nie podajemy ref na sztywno. GitHub użyje domyślnej gałęzi repozytorium.
             const resp = await fetch(GITHUB_API, { headers: githubHeaders() });
             if(resp.status === 404) {
-                db = { models: [], sales: [] };
+                db = { models: [], sales: [], employees: [], workEntries: [], payouts: [] };
                 githubFileSha = null;
                 const ok = await saveToCloud(true, repo && repo.size === 0);
                 if(ok) setStatus('Połączono z GitHub ✅');
-                renderSelect(); renderStats(); renderModelEditList(); renderClientsList(); renderDashboard();
+                renderAllViews();
                 return ok;
             }
             if(!resp.ok) throw new Error(await githubErrorText(resp));
             const file = await resp.json();
             githubFileSha = file.sha;
             const parsed = JSON.parse(base64ToUtf8(file.content));
-            db = parsed && parsed.data && parsed.version ? parsed.data : parsed;
-            if(!db || !Array.isArray(db.models) || !Array.isArray(db.sales)) db = { models: [], sales: [] };
+            const loadedDb = (parsed && parsed.data && typeof parsed.data === 'object') ? parsed.data : parsed;
+            if(loadedDb && typeof loadedDb === 'object' && Array.isArray(loadedDb.models) && Array.isArray(loadedDb.sales)) {
+                db = loadedDb;
+            } else {
+                throw new Error('Nieprawidłowy format bazy danych w GitHub — dane nie zostały nadpisane.');
+            }
+            migrateEmployeeDb();
             setStatus(`Połączono z GitHub ✅ (${githubBranch})`);
-            renderSelect(); renderStats(); renderModelEditList(); renderClientsList(); renderDashboard();
+            renderAllViews();
             return true;
         } catch(err) {
             console.error(err);
@@ -395,7 +481,7 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
         }
     }
 
-    document.addEventListener('DOMContentLoaded', initializeFile);
+    document.addEventListener('DOMContentLoaded', ()=>{initializeFile();});
 
     function setSaleMode(m) {
         saleMode = m;
@@ -512,33 +598,100 @@ function calculateLiveCost() {
         const monthsContainer = document.getElementById('monthsContainer');
         const yearContainer = document.getElementById('yearStatsContainer');
         monthsContainer.innerHTML = ""; yearContainer.innerHTML = "";
-        if(!db.sales || db.sales.length === 0) return;
-        const curYear = new Date().getFullYear();
-        let yS = { p: 0, c: 0, q: 0, r: 0 }; let mD = {};
 
-        db.sales.forEach(s => {
-            const rev = s.rev || (s.prof + s.cost);
-            // FILTR BEZPIECZEŃSTWA: Tygodniówka to zawsze 0 sztuk, niezależnie co jest w bazie
+        const curYear = new Date().getFullYear();
+        let yS = { p: 0, c: 0, q: 0, r: 0 };
+        let mD = {};
+
+        // Sprzedaż
+        (db.sales || []).forEach(s => {
+            const rev = Number(s.rev) || ((Number(s.prof) || 0) + (Number(s.cost) || 0));
+            const prof = Number(s.prof) || 0;
             const qty = s.name === "TYGODNIÓWKA" ? 0 : (parseInt(s.qty) || 0);
-            
-            if(s.year == curYear) { yS.p += s.prof; yS.c += s.cost; yS.q += qty; yS.r += rev; }
-            if(!mD[s.month]) mD[s.month] = { p: 0, c: 0, q: 0, items: [] };
-            mD[s.month].p += s.prof; mD[s.month].c += s.cost; mD[s.month].q += qty; mD[s.month].items.push(s);
+
+            if(Number(s.year) === curYear) {
+                yS.p += prof;
+                yS.c += Number(s.cost) || 0;
+                yS.q += qty;
+                yS.r += rev;
+            }
+            const month = s.month || '';
+            if(!mD[month]) mD[month] = { p: 0, c: 0, q: 0, r: 0, items: [], payouts: [] };
+            mD[month].p += prof;
+            mD[month].c += Number(s.cost) || 0;
+            mD[month].q += qty;
+            mD[month].r += rev;
+            mD[month].items.push(s);
         });
 
-        yearContainer.innerHTML = `<div class="year-box"><small>ZYSK ${curYear}</small><div style="font-size:28px; font-weight:800; color:var(--success); margin: 5px 0;">+${yS.p.toFixed(2)} PLN</div><div class="year-grid"><div>PRZYCHÓD<br><b style="color:white">${yS.r.toFixed(0)}</b></div><div>KOSZTY<br><b style="color:var(--danger)">${yS.c.toFixed(0)}</b></div><div>SZTUK<br><b style="color:var(--primary)">${yS.q}</b></div></div></div>`;
+        // Nowe tygodniówki pracowników są osobnymi kosztami.
+        (db.payouts || []).forEach(p => {
+            const amount = Number(p.amount) || 0;
+            const date = String(p.date || '');
+            const year = Number(date.slice(0,4));
+            const month = date.length >= 10 ? date.slice(5,7) + '/' + date.slice(0,4) : '';
+            if(year === curYear) yS.c += amount;
+            if(month) {
+                if(!mD[month]) mD[month] = { p: 0, c: 0, q: 0, r: 0, items: [], payouts: [] };
+                mD[month].c += amount;
+                mD[month].payouts.push(p);
+            }
+        });
+
+        const yearProfit = yS.p - (db.payouts || [])
+            .filter(p => String(p.date || '').slice(0,4) === String(curYear))
+            .reduce((sum,p) => sum + (Number(p.amount)||0), 0);
+        const yearSalary = (db.payouts || [])
+            .filter(p => String(p.date || '').slice(0,4) === String(curYear))
+            .reduce((sum,p) => sum + (Number(p.amount)||0), 0);
+
+        yearContainer.innerHTML = `<div class="year-box">
+            <small>ZYSK ${curYear} PO WYPŁATACH</small>
+            <div style="font-size:28px; font-weight:800; color:${yearProfit >= 0 ? 'var(--success)' : 'var(--danger)'}; margin:5px 0;">${yearProfit >= 0 ? '+' : ''}${yearProfit.toFixed(2)} PLN</div>
+            <div class="year-grid">
+                <div>PRZYCHÓD<br><b style="color:white">${yS.r.toFixed(0)}</b></div>
+                <div>KOSZTY<br><b style="color:var(--danger)">${yS.c.toFixed(0)}</b></div>
+                <div>WYPŁATY<br><b style="color:var(--warning)">${yearSalary.toFixed(2)}</b></div>
+                <div>SZTUK<br><b style="color:var(--primary)">${yS.q}</b></div>
+            </div>
+        </div>`;
 
         Object.keys(mD).sort().reverse().forEach(m => {
             const data = mD[m];
             const div = document.createElement('div'); div.className = 'month-acc';
-            let salarySum = 0;
+
+            let legacySalarySum = 0;
             let normalItems = [];
             data.items.forEach(item => {
-                if(item.name === "TYGODNIÓWKA") salarySum += item.prof;
+                if(item.name === "TYGODNIÓWKA") legacySalarySum += Number(item.prof) || 0;
                 else normalItems.push(item);
             });
-            let salaryHtml = salarySum > 0 ? `<tr class="salary-row clickable-row" onclick="openSalaryDetails('${m}')"><td><b style="color:var(--warning)">TYGODNIÓWKA (SUMA)</b><br><small>Kliknij, aby sprawdzić dni</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--success)">+${salarySum.toFixed(2)}</b><br><small style="font-size:8px; color:var(--text-dim)">szczegóły ›</small></td></tr>` : "";
-            div.innerHTML = `<div class="month-header" onclick="toggleMonth('${m}')"><div><b>${m}</b></div><div style="text-align:right"><b style="color:var(--success)">+${data.p.toFixed(2)}</b><br><small>${data.q} szt.</small></div></div><div id="content-${m.replace('/','-')}" class="month-content"><table>${salaryHtml}${normalItems.slice().reverse().map(item => `<tr class="clickable-row" onclick="openSaleDetails('${item.id}')"><td><b>${item.name}</b><br><small>${item.client} | ${item.date}</small></td><td style="text-align:center">x${item.qty}</td><td style="text-align:right"><b style="color:var(--success)">+${item.prof.toFixed(2)}</b><br><small style="color:var(--text-dim)">szczegóły ›</small></td></tr>`).join('')}</table></div>`;
+
+            const employeeSalary = (data.payouts || []).reduce((sum,p) => sum + (Number(p.amount)||0), 0);
+            const totalSalary = legacySalarySum + employeeSalary;
+            const monthProfit = data.p - employeeSalary;
+
+            let salaryHtml = '';
+            if(totalSalary > 0) {
+                salaryHtml = `<tr class="salary-row"><td><b style="color:var(--warning)">WYPŁATY PRACOWNIKÓW</b><br><small>Tygodniówki wypłacone w tym miesiącu</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--danger)">-${totalSalary.toFixed(2)}</b></td></tr>`;
+            }
+
+            const payoutDetails = (data.payouts || []).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(p => {
+                const e = employeeById(p.employeeId);
+                return `<div class="history-item"><div class="history-top"><b>${escapeHtml(e?.name || 'Usunięty pracownik')}</b><b style="color:var(--danger)">-${money(p.amount)}</b></div><div class="history-meta">${p.date} • ${formatHours(p.hours)} • ${p.entries?.length || 0} wpisów</div></div>`;
+            }).join('');
+
+            if(payoutDetails) {
+                salaryHtml += `<tr><td colspan="3"><details><summary style="cursor:pointer;color:var(--text-dim)">Pokaż szczegóły wypłat</summary><div style="margin-top:10px">${payoutDetails}</div></details></td></tr>`;
+            }
+
+            div.innerHTML = `<div class="month-header" onclick="toggleMonth('${m}')">
+                <div><b>${m}</b></div>
+                <div style="text-align:right"><b style="color:${monthProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">${monthProfit >= 0 ? '+' : ''}${monthProfit.toFixed(2)}</b><br><small>${data.q} szt.</small></div>
+            </div>
+            <div id="content-${m.replace('/','-')}" class="month-content">
+                <table>${salaryHtml}${normalItems.slice().reverse().map(item => `<tr class="clickable-row" onclick="openSaleDetails('${item.id}')"><td><b>${escapeHtml(item.name)}</b><br><small>${escapeHtml(item.client || '')} | ${item.date || ''}</small></td><td style="text-align:center">x${item.qty}</td><td style="text-align:right"><b style="color:var(--success)">+${(Number(item.prof)||0).toFixed(2)}</b><br><small style="color:var(--text-dim)">szczegóły ›</small></td></tr>`).join('')}</table>
+            </div>`;
             monthsContainer.appendChild(div);
         });
     }
@@ -646,7 +799,7 @@ function calculateLiveCost() {
 // BACKUP / RESTORE SYSTEM
 // =======================
 function exportData() {
-    const backup = { version: 1, exportDate: new Date().toISOString(), data: db };
+    const backup = { version: 2, exportDate: new Date().toISOString(), data: db };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
     const link = document.createElement("a");
     const date = new Date();
@@ -728,6 +881,115 @@ function importMerge() {
 
 
 
+
+// =======================
+// PRACOWNICY / CZAS PRACY / TYGODNIÓWKI
+// =======================
+function migrateEmployeeDb(){
+    if(!db || typeof db!=='object') db={};
+    if(!Array.isArray(db.models)) db.models=[];
+    if(!Array.isArray(db.sales)) db.sales=[];
+    if(!Array.isArray(db.employees)) db.employees=[];
+    if(!Array.isArray(db.workEntries)) db.workEntries=[];
+    if(!Array.isArray(db.payouts)) db.payouts=[];
+}
+function uid(prefix){return prefix+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);}
+function num(v){return Number(String(v??'').replace(',','.'))||0;}
+function money(v){return (Number(v)||0).toLocaleString('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2})+' zł';}
+function formatHours(h){const mins=Math.round((Number(h)||0)*60);return Math.floor(mins/60)+' h '+String(mins%60).padStart(2,'0')+' min';}
+function workDuration(a,b){if(!a||!b)return 0;let [ah,am]=a.split(':').map(Number),[bh,bm]=b.split(':').map(Number);let x=ah*60+am,y=bh*60+bm;if(y<x)y+=1440;return (y-x)/60;}
+function employeeById(id){return (db.employees||[]).find(e=>String(e.id)===String(id));}
+function employeePending(id){const entries=(db.workEntries||[]).filter(w=>String(w.employeeId)===String(id)&&!w.payoutId);return{entries,hours:entries.reduce((s,w)=>s+num(w.hours),0),amount:entries.reduce((s,w)=>s+num(w.amount),0)};}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function openEmployeeForm(id=''){
+    const e=id?employeeById(id):null;
+    const name=prompt('Imię i nazwisko pracownika:',e?.name||''); if(name===null)return;
+    const clean=name.trim(); if(!clean)return alert('Podaj imię i nazwisko.');
+    const rateRaw=prompt('Stawka godzinowa (zł/h):',e?String(e.lastRate||''):''); if(rateRaw===null)return;
+    const rate=num(rateRaw); if(rate<=0)return alert('Stawka musi być większa od 0.');
+    if(e){e.name=clean;e.lastRate=rate;}else db.employees.push({id:uid('emp'),name:clean,lastRate:rate,active:true,createdAt:new Date().toISOString()});
+    saveToCloud().then(()=>{renderEmployees();renderWorkForm();renderPayouts();renderEmployeeCosts();});
+}
+function deleteEmployee(id){
+    const e=employeeById(id);if(!e)return;
+    if((db.workEntries||[]).some(w=>String(w.employeeId)===String(id)&&!w.payoutId))return alert('Najpierw wypłać niewypłacone godziny tego pracownika.');
+    if(!confirm('Usunąć pracownika '+e.name+'? Historia wypłat pozostanie zapisana.'))return;
+    e.active=false;saveToCloud().then(()=>{renderEmployees();renderWorkForm();renderPayouts();renderEmployeeCosts();});
+}
+function renderEmployees(){
+    const c=document.getElementById('employeesContainer');if(!c)return;
+    const arr=(db.employees||[]).filter(e=>e.active!==false);
+    if(!arr.length){c.innerHTML='<div class="empty-state">Brak pracowników.<br>Dodaj pierwszego pracownika.</div>';return;}
+    c.innerHTML=arr.map(e=>{const p=employeePending(e.id);return `<div class="employee-card"><div class="employee-head"><div><div class="employee-name">${escapeHtml(e.name)}</div><div class="employee-meta">Ostatnia stawka: ${money(e.lastRate)}/h</div></div><div class="employee-money"><strong>${money(p.amount)}</strong><div class="${p.amount?'status-unpaid':'status-paid'}">${p.amount?'DO WYPŁATY':'ROZLICZONY'}</div></div></div><div class="employee-stats"><div class="employee-stat"><small>Bieżące godziny</small><b>${formatHours(p.hours)}</b></div><div class="employee-stat"><small>Wpisy</small><b>${p.entries.length}</b></div><div class="employee-stat"><small>Stawka</small><b>${money(e.lastRate)}/h</b></div></div><div class="modal-actions"><button class="btn btn-blue btn-small" onclick="openEmployeeForm('${e.id}')">EDYTUJ</button><button class="btn btn-grey btn-small" onclick="openEmployeeHistory('${e.id}')">HISTORIA</button><button class="btn btn-red btn-small" onclick="deleteEmployee('${e.id}')">USUŃ</button></div></div>`}).join('');
+}
+function renderWorkForm(){
+    const s=document.getElementById('workEmployee');if(!s)return;
+    const arr=(db.employees||[]).filter(e=>e.active!==false),old=s.value;
+    s.innerHTML=arr.map(e=>`<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+    if(arr.some(e=>String(e.id)===String(old)))s.value=old;else if(arr[0])s.value=arr[0].id;
+    const d=document.getElementById('workDate');if(d&&!d.value)d.value=new Date().toISOString().slice(0,10);
+    prefillEmployeeRate();renderWorkEntries();
+}
+function prefillEmployeeRate(){const e=employeeById(document.getElementById('workEmployee')?.value),r=document.getElementById('workRate');if(e&&r)r.value=e.lastRate||'';updateWorkPreview();}
+function updateWorkPreview(){const h=workDuration(document.getElementById('workStart')?.value,document.getElementById('workEnd')?.value),r=num(document.getElementById('workRate')?.value),p=document.getElementById('workPreview');if(p)p.innerHTML=`${formatHours(h)} • <b>${money(h*r)}</b>`;}
+function addWorkEntry(){
+    const employeeId=document.getElementById('workEmployee').value,date=document.getElementById('workDate').value,start=document.getElementById('workStart').value,end=document.getElementById('workEnd').value,rate=num(document.getElementById('workRate').value),hours=workDuration(start,end);
+    if(!employeeId||!date||!start||!end||rate<=0||hours<=0)return alert('Uzupełnij pracownika, datę, godziny i stawkę.');
+    const e=employeeById(employeeId);if(!e)return;e.lastRate=rate;
+    db.workEntries.push({id:uid('work'),employeeId,date,start,end,hours,rate,amount:hours*rate,payoutId:null,createdAt:new Date().toISOString()});
+    document.getElementById('workStart').value='';document.getElementById('workEnd').value='';
+    saveToCloud().then(ok=>{if(ok){renderEmployees();renderWorkForm();renderPayouts();renderEmployeeCosts();alert('Dodano czas pracy.');}});
+}
+function deleteWorkEntry(id){const w=(db.workEntries||[]).find(x=>x.id===id);if(!w||w.payoutId)return;if(!confirm('Usunąć wpis czasu pracy?'))return;db.workEntries=db.workEntries.filter(x=>x.id!==id);saveToCloud().then(()=>{renderWorkEntries();renderEmployees();renderPayouts();renderEmployeeCosts();});}
+function renderWorkEntries(){
+    const c=document.getElementById('workEntriesContainer');if(!c)return;const arr=(db.workEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,30);document.getElementById('workEntryCount').textContent=arr.length+' wpisów';
+    c.innerHTML=arr.length?arr.map(w=>{const e=employeeById(w.employeeId);return `<div class="work-row"><div><b>${escapeHtml(e?.name||'Usunięty pracownik')}</b><br><small>${w.date} • ${w.start}–${w.end} • ${formatHours(w.hours)}</small></div><div style="text-align:right"><b>${money(w.amount)}</b><br><small>${w.payoutId?'WYPŁACONO':'NIEWYPŁACONO'}</small>${w.payoutId?'':`<br><button class="btn-del" onclick="deleteWorkEntry('${w.id}')">USUŃ</button>`}</div></div>`}).join(''):'<div class="empty-state">Brak wpisów czasu pracy.</div>';
+}
+function renderPayouts(){
+    const c=document.getElementById('payoutsContainer');if(!c)return;let totalH=0,totalA=0;const arr=(db.employees||[]).filter(e=>e.active!==false);
+    const pendingEmployees=arr.map(e=>({e,p:employeePending(e.id)})).filter(x=>x.p.amount>0);c.innerHTML=pendingEmployees.length?pendingEmployees.map(({e,p})=>{totalH+=p.hours;totalA+=p.amount;return `<div class="employee-card"><div class="employee-head"><div><div class="employee-name">${escapeHtml(e.name)}</div><div class="employee-meta">${formatHours(p.hours)}</div></div><div class="employee-money"><strong>${money(p.amount)}</strong></div></div><button class="btn btn-green" onclick="payEmployee('${e.id}')">WYPŁACONO</button></div>`}).join(''):'<div class="empty-state">Brak niewypłaconych tygodniówek.</div>';
+    document.getElementById('pendingHours').textContent=formatHours(totalH);document.getElementById('pendingAmount').textContent=money(totalA);
+}
+async function payEmployee(empId){
+    const e=employeeById(empId),p=employeePending(empId);if(!e||!p.entries.length)return;
+    if(!confirm(`Wypłacić ${money(p.amount)} za ${formatHours(p.hours)} pracownikowi ${e.name}?`))return;
+    const payout={id:uid('pay'),employeeId:empId,date:new Date().toISOString().slice(0,10),hours:p.hours,amount:p.amount,entries:p.entries.map(w=>w.id)};
+    db.payouts.push(payout);p.entries.forEach(w=>w.payoutId=payout.id);
+    const ok=await saveToCloud();if(ok){renderEmployees();renderPayouts();renderWorkEntries();renderEmployeeCosts();renderDashboard();alert('Wypłata zapisana. Licznik godzin został wyzerowany.');}
+}
+function renderEmployeeCosts(){
+    const c=document.getElementById('employeeCostsContainer');if(!c)return;const months={};
+    (db.payouts||[]).forEach(p=>{const m=String(p.date).slice(0,7);if(!months[m])months[m]={amount:0,hours:0,items:[]};months[m].amount+=num(p.amount);months[m].hours+=num(p.hours);months[m].items.push(p);});
+    const keys=Object.keys(months).sort().reverse();if(!keys.length){c.innerHTML='<div class="empty-state">Nie ma jeszcze wypłaconych tygodniówek.</div>';return;}
+    c.innerHTML=keys.map(m=>{const d=months[m],label=new Date(Number(m.slice(0,4)),Number(m.slice(5,7))-1,1).toLocaleDateString('pl-PL',{month:'long',year:'numeric'}),by={};
+      d.items.forEach(p=>{const e=employeeById(p.employeeId),k=p.employeeId;if(!by[k])by[k]={name:e?.name||'Usunięty pracownik',amount:0,hours:0};by[k].amount+=num(p.amount);by[k].hours+=num(p.hours);});
+      return `<div class="month-acc"><div class="month-header" onclick="toggleEmployeeMonth('${m}')"><div><b>${label}</b><br><small>${formatHours(d.hours)}</small></div><div style="text-align:right"><b style="color:var(--success)">${money(d.amount)}</b><br><small>${d.items.length} wypłat</small></div></div><div id="emp-month-${m}" class="month-content"><table><tr><td><b>Pracownik</b></td><td><b>Godziny</b></td><td style="text-align:right"><b>Wypłacono</b></td></tr>${Object.values(by).sort((a,b)=>b.amount-a.amount).map(x=>`<tr><td><b>${escapeHtml(x.name)}</b></td><td>${formatHours(x.hours)}</td><td style="text-align:right;color:var(--success)">${money(x.amount)}</td></tr>`).join('')}</table><div style="margin-top:12px"><b>Historia tygodniówek</b>${d.items.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(p=>{const e=employeeById(p.employeeId);return `<div class="history-item"><div class="history-top"><b>${escapeHtml(e?.name||'Usunięty pracownik')}</b><b style="color:var(--success)">${money(p.amount)}</b></div><div class="history-meta">${p.date} • ${formatHours(p.hours)} • ${p.entries?.length||0} wpisów</div></div>`}).join('')}</div></div></div>`;
+    }).join('');
+}
+function toggleEmployeeMonth(m){document.getElementById('emp-month-'+m)?.classList.toggle('open');}
+function openEmployeeHistory(id){
+    const e=employeeById(id);if(!e)return;const payouts=(db.payouts||[]).filter(p=>String(p.employeeId)===String(id)).sort((a,b)=>b.date.localeCompare(a.date)),works=(db.workEntries||[]).filter(w=>String(w.employeeId)===String(id)).sort((a,b)=>b.date.localeCompare(a.date));
+    document.getElementById('clientModalTitle').innerText='Historia • '+e.name;
+    document.getElementById('clientDetails').innerHTML=`<div class="details-grid"><div class="detail-box"><small>Ostatnia stawka</small><b>${money(e.lastRate)}/h</b></div><div class="detail-box"><small>Wypłaty</small><b>${payouts.length}</b></div><div class="detail-box"><small>Łącznie wypłacono</small><b>${money(payouts.reduce((s,p)=>s+num(p.amount),0))}</b></div><div class="detail-box"><small>Łącznie godzin</small><b>${formatHours(payouts.reduce((s,p)=>s+num(p.hours),0))}</b></div></div><div style="margin-top:16px"><b>Wypłaty</b></div>${payouts.length?payouts.map(p=>`<div class="history-item"><div class="history-top"><b>${p.date}</b><b style="color:var(--success)">${money(p.amount)}</b></div><div class="history-meta">${formatHours(p.hours)} • ${p.entries?.length||0} wpisów</div></div>`).join(''):'<div class="empty-state">Brak wypłat.</div>'}<div style="margin-top:16px"><b>Godziny</b></div>${works.slice(0,20).map(w=>`<div class="history-item"><div class="history-top"><b>${w.date}</b><b>${money(w.amount)}</b></div><div class="history-meta">${w.start}–${w.end} • ${formatHours(w.hours)} • ${money(w.rate)}/h</div></div>`).join('')}`;
+    document.getElementById('clientModalBackdrop').classList.add('open');
+}
+
+const mainSections={dashboard:['dashboard'],production:['sales','calc','clients'],employees:['workPage','employeesPage','payoutsPage'],finance:['stats','employeeCostsPage','backupPage']};
+function openMainSection(section){
+    document.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('main-'+section)?.classList.add('active');
+    document.querySelectorAll('.subnav').forEach(s=>s.classList.remove('open'));document.getElementById('subnav-'+section)?.classList.add('open');
+    openSubPage(section,mainSections[section][0]);
+}
+function openSubPage(section,page){
+    document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));document.getElementById(page)?.classList.add('active');
+    document.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('main-'+section)?.classList.add('active');
+    document.querySelectorAll('.subnav').forEach(s=>s.classList.remove('open'));document.getElementById('subnav-'+section)?.classList.add('open');
+    const sub=document.getElementById('subnav-'+section);if(sub)sub.querySelectorAll('.subnav-btn').forEach(b=>b.classList.toggle('active',b.dataset.target===page));
+    if(page==='dashboard')renderDashboard();if(page==='calc')calculateLiveCost();if(page==='sales')renderSelect();if(page==='clients')renderClients();if(page==='stats')renderStats();if(page==='employeesPage')renderEmployees();if(page==='workPage')renderWorkForm();if(page==='payoutsPage')renderPayouts();if(page==='employeeCostsPage')renderEmployeeCosts();
+}
+function switchTab(id){const m={dashboard:['dashboard','dashboard'],calc:['production','calc'],sales:['production','sales'],clients:['production','clients'],stats:['finance','stats'],employeesPage:['employees','employeesPage'],workPage:['employees','workPage'],payoutsPage:['employees','payoutsPage'],employeeCostsPage:['finance','employeeCostsPage'],backupPage:['finance','backupPage']};const x=m[id]||['dashboard','dashboard'];openSubPage(x[0],x[1]);}
+
 function renderClientsList() {
     const list = document.getElementById('clientsList');
     if(!list) return;
@@ -805,10 +1067,12 @@ function renderDashboard(){
     const monthKey=String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear();
     const today=sales.filter(s=>s.date===todayKey);
     const month=sales.filter(s=>s.month===monthKey);
-    const monthSalary=allSales.filter(s=>s.name==='TYGODNIÓWKA' && s.month===monthKey);
+    const legacySalary=allSales.filter(s=>s.name==='TYGODNIÓWKA' && s.month===monthKey);
+    const employeeSalary=(db.payouts||[]).filter(p=>String(p.date||'').slice(0,7)===now.toISOString().slice(0,7));
+    const monthSalary=legacySalary.concat(employeeSalary);
     const sum=(arr,k)=>arr.reduce((a,s)=>a+(Number(s[k])||0),0);
     const qty=arr=>arr.reduce((a,s)=>a+(parseInt(s.qty)||0),0);
-    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mCost=sum(month,'cost'), mProf=sum(month,'prof'), salarySum=sum(monthSalary,'prof'), mTotalProf=mProf+salarySum, mQty=qty(month);
+    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mCost=sum(month,'cost'), mProf=sum(month,'prof'), salarySum=sum(monthSalary,'prof'), mTotalProf=mProf-salarySum, mQty=qty(month);
     const set=(id,val)=>{const e=document.getElementById(id); if(e)e.textContent=val;};
     set('dashTodayRev',money(tRev)); set('dashTodayProfit',money(tProf)); set('dashTodayQty',qty(today)+' szt.');
     set('dashMonthRev',money(mRev)); set('dashMonthCost',money(mCost)); set('dashMonthProfit',money(mProf)); set('dashMonthTotalProfit',money(mTotalProf)); set('dashMonthQty',mQty+' szt.');
@@ -829,7 +1093,7 @@ function renderDashboard(){
 
 setInterval(() => { if(document.getElementById('dashboard')?.classList.contains('active')) renderDashboard(); }, 60000);
 
-function switchTab(id) { document.querySelectorAll('.card').forEach(c => c.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); const tabMap={dashboard:'tab0',calc:'tab1',sales:'tab2',stats:'tab3',clients:'tab4'}; document.getElementById(tabMap[id]).classList.add('active'); if(id==='dashboard') renderDashboard(); if(id==='sales') renderSelect(); if(id==='stats') renderStats(); if(id==='clients') renderClients(); }
+
 </script>
 </body>
 </html>
