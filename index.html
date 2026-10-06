@@ -206,6 +206,11 @@ body{padding:0;background:radial-gradient(circle at top,#15202b 0,#0b0d10 36%,#0
         </div>
         <div id="profitHint" style="margin-top:15px; text-align:center;"></div>
         <button class="btn btn-blue" onclick="addSale()">DODAJ SPRZEDAŻ</button>
+        <hr style="margin:25px 0;border:0;border-top:1px solid var(--border);">
+        <label style="color:var(--warning)">Zaksięguj Tygodniówkę</label>
+        <input type="date" id="salaryDate">
+        <input type="text" inputmode="decimal" id="salaryAmount" placeholder="Kwota tygodniówki (PLN)">
+        <button class="btn btn-orange" onclick="addWeeklySalary()">ROZLICZ TYGODNIÓWKĘ</button>
     </div>
 
     <div id="stats" class="card"><div class="screen-title"><div class="icon">▥</div><div><h2>Wyniki</h2><p>Podsumowanie sprzedaży</p></div></div>
@@ -668,12 +673,14 @@ function calculateLiveCost() {
             });
 
             const employeeSalary = (data.payouts || []).reduce((sum,p) => sum + (Number(p.amount)||0), 0);
-            const totalSalary = legacySalarySum + employeeSalary;
             const monthProfit = data.p - employeeSalary;
 
             let salaryHtml = '';
-            if(totalSalary > 0) {
-                salaryHtml = `<tr class="salary-row"><td><b style="color:var(--warning)">WYPŁATY PRACOWNIKÓW</b><br><small>Tygodniówki wypłacone w tym miesiącu</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--danger)">-${totalSalary.toFixed(2)}</b></td></tr>`;
+            if(legacySalarySum > 0) {
+                salaryHtml += `<tr class="salary-row clickable-row" onclick="openSalaryDetails('${m}')"><td><b style="color:var(--warning)">TYGODNIÓWKA (TWÓJ ZAROBEK)</b><br><small>Kliknij, aby sprawdzić dni</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--success)">+${legacySalarySum.toFixed(2)}</b><br><small style="font-size:8px;color:var(--text-dim)">szczegóły ›</small></td></tr>`;
+            }
+            if(employeeSalary > 0) {
+                salaryHtml += `<tr class="salary-row"><td><b style="color:var(--warning)">WYPŁATY PRACOWNIKÓW</b><br><small>Tygodniówki wypłacone pracownikom</small></td><td style="text-align:center">-</td><td style="text-align:right"><b style="color:var(--danger)">-${employeeSalary.toFixed(2)}</b></td></tr>`;
             }
 
             const payoutDetails = (data.payouts || []).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(p => {
@@ -1069,15 +1076,16 @@ function renderDashboard(){
     const month=sales.filter(s=>s.month===monthKey);
     const legacySalary=allSales.filter(s=>s.name==='TYGODNIÓWKA' && s.month===monthKey);
     const employeeSalary=(db.payouts||[]).filter(p=>String(p.date||'').slice(0,7)===now.toISOString().slice(0,7));
-    const monthSalary=legacySalary.concat(employeeSalary);
     const sum=(arr,k)=>arr.reduce((a,s)=>a+(Number(s[k])||0),0);
     const qty=arr=>arr.reduce((a,s)=>a+(parseInt(s.qty)||0),0);
-    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mCost=sum(month,'cost'), mProf=sum(month,'prof'), salarySum=sum(monthSalary,'prof'), mTotalProf=mProf-salarySum, mQty=qty(month);
+    const legacySalarySum=sum(legacySalary,'prof');
+    const employeeSalarySum=sum(employeeSalary,'amount');
+    const tRev=sum(today,'rev'), tProf=sum(today,'prof'), mRev=sum(month,'rev'), mCost=sum(month,'cost'), mProf=sum(month,'prof'), mTotalProf=mProf-employeeSalarySum, mQty=qty(month);
     const set=(id,val)=>{const e=document.getElementById(id); if(e)e.textContent=val;};
     set('dashTodayRev',money(tRev)); set('dashTodayProfit',money(tProf)); set('dashTodayQty',qty(today)+' szt.');
     set('dashMonthRev',money(mRev)); set('dashMonthCost',money(mCost)); set('dashMonthProfit',money(mProf)); set('dashMonthTotalProfit',money(mTotalProf)); set('dashMonthQty',mQty+' szt.');
     set('dashMargin','Marża '+(mRev?((mProf/mRev)*100).toFixed(1):'0,0')+'%');
-    set('dashSalaryInfo','Tygodniówki: '+money(salarySum));
+    set('dashSalaryInfo','Twoja tygodniówka: +'+money(legacySalarySum)+' • wypłaty pracowników: -'+money(employeeSalarySum));
     const recent=document.getElementById('dashRecent');
     if(recent){
       const r=sales.slice().reverse().slice(0,4);
